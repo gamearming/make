@@ -1,18 +1,18 @@
 /* Definition of target file data structures for GNU Make.
-Copyright (C) 1988-2016 Free Software Foundation, Inc.
-This file is part of GNU Make.
+  Copyright (C) 1988-2016 Free Software Foundation, Inc.
+  This file is part of GNU Make.
 
-GNU Make is free software; you can redistribute it and/or modify it under the
-terms of the GNU General Public License as published by the Free Software
-Foundation; either version 3 of the License, or (at your option) any later
-version.
+  GNU Make is free software; you can redistribute it and/or modify it under the
+  terms of the GNU General Public License as published by the Free Software
+  Foundation; either version 3 of the License, or (at your option) any later
+  version.
 
-GNU Make is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+  GNU Make is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with
-this program.  If not, see <http://www.gnu.org/licenses/>.  */
+  You should have received a copy of the GNU General Public License along with
+  this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 
 /* Structure that represents the info on one file
@@ -21,115 +21,114 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "hash.h"
 
-struct file
-  {
-    const char *name;
-    const char *hname;          /* Hashed filename */
-    const char *vpath;          /* VPATH/vpath pathname */
-    struct dep *deps;           /* all dependencies, including duplicates */
-    struct commands *cmds;      /* Commands to execute for this target.  */
-    const char *stem;           /* Implicit stem, if an implicit
+struct file {
+  const char *name;
+  const char *hname;          /* Hashed filename */
+  const char *vpath;          /* VPATH/vpath pathname */
+  struct dep *deps;           /* all dependencies, including duplicates */
+  struct commands *cmds;      /* Commands to execute for this target.  */
+  const char *stem;           /* Implicit stem, if an implicit
                                    rule has been used */
-    struct dep *also_make;      /* Targets that are made by making this.  */
-    struct file *prev;          /* Previous entry for same file name;
+  struct dep *also_make;      /* Targets that are made by making this.  */
+  struct file *prev;          /* Previous entry for same file name;
                                    used when there are multiple double-colon
                                    entries for the same file.  */
-    struct file *last;          /* Last entry for the same file name.  */
+  struct file *last;          /* Last entry for the same file name.  */
 
-    /* File that this file was renamed to.  After any time that a
-       file could be renamed, call 'check_renamed' (below).  */
-    struct file *renamed;
+  /* File that this file was renamed to.  After any time that a
+     file could be renamed, call 'check_renamed' (below).  */
+  struct file *renamed;
 
-    /* List of variable sets used for this file.  */
-    struct variable_set_list *variables;
+  /* List of variable sets used for this file.  */
+  struct variable_set_list *variables;
 
-    /* Pattern-specific variable reference for this target, or null if there
-       isn't one.  Also see the pat_searched flag, below.  */
-    struct variable_set_list *pat_variables;
+  /* Pattern-specific variable reference for this target, or null if there
+     isn't one.  Also see the pat_searched flag, below.  */
+  struct variable_set_list *pat_variables;
 
-    /* Immediate dependent that caused this target to be remade,
-       or nil if there isn't one.  */
-    struct file *parent;
+  /* Immediate dependent that caused this target to be remade,
+     or nil if there isn't one.  */
+  struct file *parent;
 
-    /* For a double-colon entry, this is the first double-colon entry for
-       the same file.  Otherwise this is null.  */
-    struct file *double_colon;
+  /* For a double-colon entry, this is the first double-colon entry for
+     the same file.  Otherwise this is null.  */
+  struct file *double_colon;
 
-    FILE_TIMESTAMP last_mtime;  /* File's modtime, if already known.  */
-    FILE_TIMESTAMP mtime_before_update; /* File's modtime before any updating
+  FILE_TIMESTAMP last_mtime;  /* File's modtime, if already known.  */
+  FILE_TIMESTAMP mtime_before_update; /* File's modtime before any updating
                                            has been performed.  */
-    unsigned int considered;    /* equal to 'considered' if file has been
+  unsigned int considered;    /* equal to 'considered' if file has been
                                    considered on current scan of goal chain */
-    int command_flags;          /* Flags OR'd in for cmds; see commands.h.  */
-    enum update_status          /* Status of the last attempt to update.  */
-      {
-        us_success = 0,         /* Successfully updated.  Must be 0!  */
-        us_none,                /* No attempt to update has been made.  */
-        us_question,            /* Needs to be updated (-q is is set).  */
-        us_failed               /* Update failed.  */
-      } update_status ENUM_BITFIELD (2);
-    enum cmd_state              /* State of the commands.  */
-      {
-        cs_not_started = 0,     /* Not yet started.  Must be 0!  */
-        cs_deps_running,        /* Dep commands running.  */
-        cs_running,             /* Commands running.  */
-        cs_finished             /* Commands finished.  */
-      } command_state ENUM_BITFIELD (2);
+  int command_flags;          /* Flags OR'd in for cmds; see commands.h.  */
+  enum update_status          /* Status of the last attempt to update.  */
+  {
+    us_success = 0,         /* Successfully updated.  Must be 0!  */
+    us_none,                /* No attempt to update has been made.  */
+    us_question,            /* Needs to be updated (-q is is set).  */
+    us_failed               /* Update failed.  */
+  } update_status ENUM_BITFIELD(2);
+  enum cmd_state              /* State of the commands.  */
+  {
+    cs_not_started = 0,     /* Not yet started.  Must be 0!  */
+    cs_deps_running,        /* Dep commands running.  */
+    cs_running,             /* Commands running.  */
+    cs_finished             /* Commands finished.  */
+  } command_state ENUM_BITFIELD(2);
 
-    unsigned int builtin:1;     /* True if the file is a builtin rule. */
-    unsigned int precious:1;    /* Non-0 means don't delete file on quit */
-    unsigned int loaded:1;      /* True if the file is a loaded object. */
-    unsigned int low_resolution_time:1; /* Nonzero if this file's time stamp
+  unsigned int builtin: 1;    /* True if the file is a builtin rule. */
+  unsigned int precious: 1;   /* Non-0 means don't delete file on quit */
+  unsigned int loaded: 1;     /* True if the file is a loaded object. */
+  unsigned int low_resolution_time: 1; /* Nonzero if this file's time stamp
                                            has only one-second resolution.  */
-    unsigned int tried_implicit:1; /* Nonzero if have searched
+  unsigned int tried_implicit: 1; /* Nonzero if have searched
                                       for implicit rule for making
                                       this file; don't search again.  */
-    unsigned int updating:1;    /* Nonzero while updating deps of this file */
-    unsigned int updated:1;     /* Nonzero if this file has been remade.  */
-    unsigned int is_target:1;   /* Nonzero if file is described as target.  */
-    unsigned int cmd_target:1;  /* Nonzero if file was given on cmd line.  */
-    unsigned int phony:1;       /* Nonzero if this is a phony file
+  unsigned int updating: 1;   /* Nonzero while updating deps of this file */
+  unsigned int updated: 1;    /* Nonzero if this file has been remade.  */
+  unsigned int is_target: 1;  /* Nonzero if file is described as target.  */
+  unsigned int cmd_target: 1; /* Nonzero if file was given on cmd line.  */
+  unsigned int phony: 1;       /* Nonzero if this is a phony file
                                    i.e., a prerequisite of .PHONY.  */
-    unsigned int intermediate:1;/* Nonzero if this is an intermediate file.  */
-    unsigned int secondary:1;   /* Nonzero means remove_intermediates should
+  unsigned int intermediate: 1; /* Nonzero if this is an intermediate file.  */
+  unsigned int secondary: 1;   /* Nonzero means remove_intermediates should
                                    not delete it.  */
-    unsigned int dontcare:1;    /* Nonzero if no complaint is to be made if
+  unsigned int dontcare: 1;    /* Nonzero if no complaint is to be made if
                                    this target cannot be remade.  */
-    unsigned int ignore_vpath:1;/* Nonzero if we threw out VPATH name.  */
-    unsigned int pat_searched:1;/* Nonzero if we already searched for
+  unsigned int ignore_vpath: 1; /* Nonzero if we threw out VPATH name.  */
+  unsigned int pat_searched: 1;/* Nonzero if we already searched for
                                    pattern-specific variables.  */
-    unsigned int no_diag:1;     /* True if the file failed to update and no
+  unsigned int no_diag: 1;     /* True if the file failed to update and no
                                    diagnostics has been issued (dontcare). */
-  };
+};
 
 
 extern struct file *default_file;
 
 
-struct file *lookup_file (const char *name);
-struct file *enter_file (const char *name);
-struct dep *split_prereqs (char *prereqstr);
-struct dep *enter_prereqs (struct dep *prereqs, const char *stem);
-void remove_intermediates (int sig);
-void snap_deps (void);
-void rename_file (struct file *file, const char *name);
-void rehash_file (struct file *file, const char *name);
-void set_command_state (struct file *file, enum cmd_state state);
-void notice_finished_file (struct file *file);
-void init_hash_files (void);
-void verify_file_data_base (void);
-char *build_target_list (char *old_list);
-void print_prereqs (const struct dep *deps);
-void print_file_data_base (void);
-int try_implicit_rule (struct file *file, unsigned int depth);
-int stemlen_compare (const void *v1, const void *v2);
+struct file *lookup_file(const char *name);
+struct file *enter_file(const char *name);
+struct dep *split_prereqs(char *prereqstr);
+struct dep *enter_prereqs(struct dep *prereqs, const char *stem);
+void remove_intermediates(int sig);
+void snap_deps(void);
+void rename_file(struct file *file, const char *name);
+void rehash_file(struct file *file, const char *name);
+void set_command_state(struct file *file, enum cmd_state state);
+void notice_finished_file(struct file *file);
+void init_hash_files(void);
+void verify_file_data_base(void);
+char *build_target_list(char *old_list);
+void print_prereqs(const struct dep *deps);
+void print_file_data_base(void);
+int try_implicit_rule(struct file *file, unsigned int depth);
+int stemlen_compare(const void *v1, const void *v2);
 
 #if FILE_TIMESTAMP_HI_RES
 # define FILE_TIMESTAMP_STAT_MODTIME(fname, st) \
-    file_timestamp_cons (fname, (st).st_mtime, (st).ST_MTIM_NSEC)
+  file_timestamp_cons (fname, (st).st_mtime, (st).ST_MTIM_NSEC)
 #else
 # define FILE_TIMESTAMP_STAT_MODTIME(fname, st) \
-    file_timestamp_cons (fname, (st).st_mtime, 0)
+  file_timestamp_cons (fname, (st).st_mtime, 0)
 #endif
 
 /* If FILE_TIMESTAMP is 64 bits (or more), use nanosecond resolution.
@@ -163,9 +162,9 @@ int stemlen_compare (const void *v1, const void *v2);
     * 302 / 1000) \
    + 1 + 1 + 4 + 25)
 
-FILE_TIMESTAMP file_timestamp_cons (char const *, time_t, long int);
-FILE_TIMESTAMP file_timestamp_now (int *);
-void file_timestamp_sprintf (char *p, FILE_TIMESTAMP ts);
+FILE_TIMESTAMP file_timestamp_cons(char const *, time_t, long int);
+FILE_TIMESTAMP file_timestamp_now(int *);
+void file_timestamp_sprintf(char *p, FILE_TIMESTAMP ts);
 
 /* Return the mtime of file F (a struct file *), caching it.
    The value is NONEXISTENT_MTIME if the file does not exist.  */
@@ -175,7 +174,7 @@ void file_timestamp_sprintf (char *p, FILE_TIMESTAMP ts);
    we don't find it.
    The value is NONEXISTENT_MTIME if the file does not exist.  */
 #define file_mtime_no_search(f) file_mtime_1 ((f), 0)
-FILE_TIMESTAMP f_mtime (struct file *file, int search);
+FILE_TIMESTAMP f_mtime(struct file *file, int search);
 #define file_mtime_1(f, v) \
   ((f)->last_mtime == UNKNOWN_MTIME ? f_mtime ((f), v) : (f)->last_mtime)
 
@@ -204,6 +203,7 @@ FILE_TIMESTAMP f_mtime (struct file *file, int search);
    targets, which need to be considered newer than anything that depends on
    them, even if said dependents' modtimes are in the future.  */
 #define NEW_MTIME INTEGER_TYPE_MAXIMUM (FILE_TIMESTAMP)
+
 
 #define check_renamed(file) \
   while ((file)->renamed != 0) (file) = (file)->renamed /* No ; here.  */

@@ -1,33 +1,38 @@
 /* config.h.W32 -- hand-massaged config.h file for Windows builds       -*-C-*-
 
-  Copyright (C) 1996-2016 Free Software Foundation, Inc.
+  Copyright (C) 1996-2016 Free Software Foundation，Inc.
   This file is part of GNU Make.
 
   GNU Make is free software; you can redistribute it and/or modify it under the
   terms of the GNU General Public License as published by the Free Software
-  Foundation; either version 3 of the License, or (at your option) any later
+  Foundation; either version 3 of the License，or (at your option) any later
   version.
 
-  GNU Make is distributed in the hope that it will be useful, but WITHOUT ANY
+  GNU Make is distributed in the hope that it will be useful，but WITHOUT ANY
   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License along with
-  this program.  If not, see <http://www.gnu.org/licenses/>.
+  this program.  If not，see <http://www.gnu.org/licenses/>.
   ////////////////////////////////////////////////////////////
   VC 快速取代語法 Define to 1 if using {(:q)} 如果使用 \1 則定義為 1。
 */
-
+ 
+  #define _CRT_NONSTDC_NO_WARNINGS                     // 函數 w/o 前導底線    functions w/o a leading underscore
 // 禁止顯示某些 Visual C++  警告。
-// 也許在 ISO C 代碼清理之後, 我們可以刪除其中的一些/全部。
+// 也許在 ISO C 代碼清理之後，我們可以刪除其中的一些/全部。
 #if _MSC_VER > 1000
   #pragma warning(disable:4100)                        // 未參考的型式參數
   #pragma warning(disable:4102)                        // 未參考的標籤
   #pragma warning(disable:4127)                        // 條件運算式為常量
   #pragma warning(disable:4131)                        // 指定的函式宣告是舊樣式的宣告。
   #pragma warning(disable:4702)                        // 有不可能執行到的程式碼
-  #define _CRT_SECURE_NO_WARNINGS                      // 函數或變量可能不安全 function or variable may be unsafe
-  #define _CRT_NONSTDC_NO_WARNINGS                     // 函數 w/o 前導底線    functions w/o a leading underscore
+  #pragma warning(disable:4307)                        // 整數常數溢位 #define ORDINARY_MTIME_MIN (OLD_MTIME + 1)
+  #pragma warning(disable:4055)                        // make\load.c(58): warning C4055: '型別轉換' : 從資料指標 'void *' 到函式指標 'load_func_t'
+  #pragma warning(disable:4244)                        // strcache.c(77): warning C4244: '+=' : 將 'unsigned int' 轉換為 'sc_buflen_t'，由於型別不同，可能導致資料遺失
+  #pragma warning(disable:4115)
+  #pragma warning(disable:4214)
+
 #endif
 
 #ifdef __MINGW32__
@@ -41,23 +46,23 @@
   #define HAVE_STRNCASECMP   1                         // 如果有 'strncasecmp' 函數。
   #define HAVE_STRNICMP      1                         // 如果有 'strnicmp' 函數。
   #define HAVE_FDOPEN        1                         // 如果有 'fdopen' 函數。
-  #define HAVE_GETTIMEOFDAY  1                         // 如果有標準的 gettimeofday 函數, 則定義為1
-  #define TIME_WITH_SYS_TIME 1                         // 如果可以安全地包括 <sys/time.h> 和 <time.h> 則定義為1。
+  #define HAVE_GETTIMEOFDAY  1                         // 如果有標準的 gettimeofday 函數，則定義為 1
+  #define TIME_WITH_SYS_TIME 1                         // 如果可以安全地包括 <sys/time.h> 和 <time.h> 則定義為 1。
 #endif
 
 #if (defined(_MSC_VER) || defined(__BORLANDC__)) && !defined(__INTERIX)
   #define HAVE_DIRECT_H 1      // 如果有 <direct.h> 頭文件和定義 getcwd() 和 chdir().
 #endif
 
-//#undef CLOSEDIR_VOID                                   // 如果 "closedir" 函數返回 void 而不是 "int", 則定義為 1。
-//#undef CRAY_STACKSEG_END                               // Define to one of '_getb67', 'GETB67', 'getb67' for Cray-2 and Cray-YMP systems. This function is required for 'alloca.c' support on those systems.
+//#undef CLOSEDIR_VOID                                   // 如果 "closedir" 函數返回 void 而不是 "int"，則定義為 1。
+//#undef CRAY_STACKSEG_END                               // Define to one of '_getb67'，'GETB67'，'getb67' for Cray-2 and Cray-YMP systems. This function is required for 'alloca.c' support on those systems.
 //#undef C_ALLOCA                                        // 如果使用 'alloca.c' 則定義為 1。.
 #define C_GETLOADAVG 1                                   // 如果使用 'getloadavg.c' 則定義為 1。.
 //#undef DGUX                                            // 用 <sys/dg_sys_info.h> 定義 DGUX 的1。
-#define FILE_TIMESTAMP_HI_RES 0                          // 如果非零, 則使用高解析度檔時間戳記。
-//#undef GETLOADAVG_PRIVILEGED                           // 如果 "getloadavg" 函數需要運行 setuid 或 setgid, 則定義為1。
-#define HAVE_ALLOCA 1                                    // 如果有 "alloca", 則定義為 1, 作為函數或巨集。
-//#undef HAVE_ALLOCA_H                                   // 如果您有 <alloca.h> 並且應該使用它 (而不是 Ultrix), 則定義為1。
+#define FILE_TIMESTAMP_HI_RES 0                          // 如果非零，則使用高解析度檔時間戳記。
+//#undef GETLOADAVG_PRIVILEGED                           // 如果 "getloadavg" 函數需要執行 setuid 或 setgid，則定義為 1。
+#define HAVE_ALLOCA 1                                    // 如果有 "alloca"，則定義為 1，作為函數或巨集。
+//#undef HAVE_ALLOCA_H                                   // 如果您有 <alloca.h> 並且應該使用它 (而不是 Ultrix)，則定義為 1。
 #define HAVE_ATEXIT 1                                    // 如果有 'atexit' 函數。
 //#undef HAVE_CASE_INSENSITIVE_FS                        // 使用不區分大小寫的檔案名稱
 //#undef HAVE_CLOCK_GETTIME                              // 如果有 clock_gettime 函數。
@@ -118,7 +123,7 @@
 #define HAVE_ISATTY 1                                    // 如果有 `isatty' 函數。
 #define HAVE_TTYNAME 1                                   // 如果有 `ttyname' 函數。
 char *ttyname(int);
-//#undef HAVE_STRUCT_NLIST_N_UN_N_NAME                   // 如果 'n_un.n_name' 是 'struct nlist' 的成員，則定義為1。
+//#undef HAVE_STRUCT_NLIST_N_UN_N_NAME                   // 如果 'n_un.n_name' 是 'struct nlist' 的成員，則定義為 1。
 //#undef HAVE_SYS_DIR_H                                  // 如果有 <sys/dir.h> 頭文件和定義 'DIR'.
 //#undef HAVE_SYS_NDIR_H                                 // 如果有 <sys/ndir.h> 頭文件和定義 'DIR'.
 //#undef HAVE_SYS_RESOURCE_H                             // 如果有 <sys/resource.h> 頭文件。
@@ -130,12 +135,12 @@ char *ttyname(int);
 //#undef HAVE_WAIT3                                      // 如果有 'wait3' 函數。
 //#undef HAVE_WAITPID                                    // 如果有 'waitpid' 函數。
 #define MAKE_HOST "Windows32"                            // 建立主機資訊
-#define MAKE_JOBSERVER 1                                 // GNU make 中啟用 job 服務器支援，則定義為1。
-#define MAKE_LOAD 1                                      // GNU make 中啟用 "load" 支援，則定義為1。
-//#undef MAKE_SYMLINKS                                   // 啟用符號連結時間戳記檢查，則定義為1。
-//#undef NLIST_NAME_UNION                                // 如果 "結構 nlist" 具有 "n_un" 成員, 則定義為1。 過時, 取決於 HAVE_STRUCT_NLIST_N_UN_N_NAME。
-//#undef NLIST_STRUCT                                    // 如果結構 nlist.n_name 是一個指標而不是陣列，則定義為 1。
-//#undef NO_MINUS_C_MINUS_O                              // 如果 C 編譯器不接受 -c 和 -o, 則定義為 1。
+#define MAKE_JOBSERVER 1                                 // GNU make 中啟用 job 服務器支援，則定義為 1。
+#define MAKE_LOAD 1                                      // GNU make 中啟用 "load" 支援，則定義為 1。
+//#undef MAKE_SYMLINKS                                   // 啟用符號連結時間戳記檢查，則定義為 1。
+//#undef NLIST_NAME_UNION                                // 如果結構 "nlist" 具有 "n_un" 成員，則定義為 1。 過時，取決於 HAVE_STRUCT_NLIST_N_UN_N_NAME。
+//#undef NLIST_STRUCT                                    // 如果結構 "nlist.n_name" 是一個指標而不是陣列，則定義為 1。
+//#undef NO_MINUS_C_MINUS_O                              // 如果 C 編譯器不接受 -c 和 -o，則定義為 1。
 #define PACKAGE "%PACKAGE%"                              // 此套裝軟體的名稱 (需要 automake)
 #define PACKAGE_BUGREPORT "bug-make@gnu.org"             // 定義應發送此套裝軟體的 bug 報告的位址。
 #define PACKAGE_NAME "GNU make"                          // 定義此套裝軟體的全名。
@@ -143,34 +148,34 @@ char *ttyname(int);
 #define PACKAGE_VERSION "%VERSION%"                      // 定義此套裝軟體的版本。
 #define PATH_SEPARATOR_CHAR ';'                          // 定義在路徑中分隔目錄的字元。
 #define RETSIGTYPE void                                  // 定義為信號處理常式的返回類型 ("int" 或 "void")。
-#define SCCS_GET "echo no sccs get"                      // 定義為 SCCS 'get' 命令的名稱。 Define to the name of the SCCS 'get' command.
+#define SCCS_GET "echo no sccs get"                      // 定義為 SCCS 'get' 命令的名稱。
 //#undef SCCS_GET_MINUS_G                                // 如果 SCCS 'get' 命令有 '-G<file>' 選項，則定義此選項。
-//#undef SETVBUF_REVERSED                                // 如果 "setvbuf" 函數以緩衝類型作為其第二個參數和緩衝區指標作為第三個變數, 則定義為 1, 如第3版之前的 System V。
-//#undef STACK_DIRECTION                                 // 如果使用 alloca 的 C 實現，定義是否知道系統堆疊增長的方向; 否則將在運行時自動推斷。
+//#undef SETVBUF_REVERSED                                // 如果 "setvbuf" 函數以緩衝類型作為其第二個參數和緩衝區指標作為第三個變數，則定義為 1，如第3版之前的 System V。
+//#undef STACK_DIRECTION                                 // 如果使用 alloca 的 C 實現，定義是否知道系統堆疊增長的方向; 否則將在執行時自動推斷。
 //STACK_DIRECTION > 0 => 向更高的位址增長 grows toward higher addresses
 //STACK_DIRECTION < 0 => 向較低的位址增長 grows toward lower addresses
 //STACK_DIRECTION = 0 => 未知的增長方向   direction of growth unknown
-//#undef STAT_MACROS_BROKEN                              // 如果 <sys/stat.h> 中的 "S_IS *" 巨集不能正常工作, 則定義為 1。
+//#undef STAT_MACROS_BROKEN                              // 如果 <sys/stat.h> 中的 "S_IS *" 巨集不能正常工作，則定義為 1。
 #define STDC_HEADERS 1                                   // 如果有 ANSI C 頭文件s.
 //#undef ST_MTIM_NSEC                                    // 定義結構統計是否包含納秒欄位
 //#undef SVR4                                            // 在 System V Release 4 上定義為1。
 //#undef UMAX                                            // 如果為 Encore UMAX 定義為1。
-//#undef UMAX4_3                                         // 對於具有 <inq_status/cpustats.h> 而不是 <sys/cpustats.h> 的 Encore UMAX 4.3 定義為 1。 Define to 1 for Encore UMAX 4.3 that has <inq_status/cpustats.h> instead of <sys/cpustats.h>.
+//#undef UMAX4_3                                         // 對於具有 <inq_status/cpustats.h> 而不是 <sys/cpustats.h> 的 Encore UMAX 4.3 定義為 1。
 #define VERSION "%VERSION%"                              // 套裝軟體的版本號
 //#undef WITH_DMALLOC                                    // 定義是否使用 dmalloc 調試 malloc 套裝軟體
 #ifndef _ALL_SOURCE
-  //# undef _ALL_SOURCE                                  // 如果在 AIX 3 上定義為 1。我們只想避免重新定義錯誤消息。 Define to 1 if on AIX 3. System headers sometimes define this. We just want to avoid a redefinition error message.
+  //# undef _ALL_SOURCE                                  // 如果在 AIX 3 上定義為 1。我們只想避免重新定義錯誤訊息。
 #endif
 //#undef _FILE_OFFSET_BITS                               // 在可設置的主機上的檔案偏移量中的位數。
 //#undef _LARGE_FILES                                    // 在 AIX-style 的主機上定義大型檔案。
 //#undef _MINIX                                          // 如果在 MINIX 上定義為 1。
 //#undef _POSIX_1_SOURCE                                 // 如果系統不提供除了定義的 POSIX.1 功能，則定義為2。
 //#undef _POSIX_SOURCE                                   // 如果您需要為了 "stat" 和其他事情工作，則定義為 1。
-//#undef const                                           // 如果 "const" 不符合 ANSI C, 則定義為空。 Define to empty if 'const' does not conform to ANSI C.
+//#undef const                                           // 如果 "const" 不符合 ANSI C，則定義為空。 Define to empty if 'const' does not conform to ANSI C.
 #include <sys/types.h>
-#define gid_t int                                        // 如果 <sys/types.h> 沒有定義, 則定義為 "int"。
+#define gid_t int                                        // 如果 <sys/types.h> 沒有定義，則定義為 "int"。
 
-#ifndef _PID_T_                                          // 如果 <sys/types.h> 未定義, 則定義為 "int"。據說 GCC 4.x 定義了 pid_t。
+#ifndef _PID_T_                                          // 如果 <sys/types.h> 未定義，則定義為 "int"。據說 GCC 4.x 定義了 pid_t。
   #ifdef _WIN64
     #define pid_t __int64
   #else
@@ -178,15 +183,18 @@ char *ttyname(int);
   #endif
 #endif
 
-#define uid_t int // 如果 <sys/types.h> 沒有定義, 則定義為 "int"。
+#define uid_t int // 如果 <sys/types.h> 沒有定義，則定義為 "int"。
 #if !HAVE_STDINT_H && !HAVE_INTTYPES_H
-  #define uintmax_t unsigned long                        // 如果未在 <stdint.h> 或 <inttypes.h> 中定義 uintmax_t, 則定義。
+  #define uintmax_t unsigned long                        // 如果未在 <stdint.h> 或 <inttypes.h> 中定義 uintmax_t，則定義。
 #endif
 //#undef HAVE_SYS_WAIT_H                                 // 定義是否有與 POSIX.1 相容的 <sys/wait.h>。
-//#undef ENABLE_NLS                                      // 如果請求將程式訊息轉換為本地化語系, 則定義為1。
-#define HAVE_SETLOCALE 1                                 // 如果有 "setlocale" 函數, 則定義為  1。
-#define HAVE_LOCALE_H 1                                  // 如果有 <locale.h> 頭文件, 則定義為 1。
-#define LOCALEDIR "..//share/locale"                     // 定義地區設定的安裝目錄。
+
+/////////////////////////////
+//#define ENABLE_NLS        1                              // 如果請求將程式訊息轉換為本地化語系，則定義為 1。 #undef ENABLE_NLS 
+#define HAVE_SETLOCALE    1                              // 如果有 "setlocale" 函數，則定義為  1。
+#define HAVE_LOCALE_H     1                              // 如果有 <locale.h> 頭文件，則定義為 1。
+#define LOCALEDIR         "..//share/locale"             // 定義地區設定的安裝目錄。
+
 //#define BATCH_MODE_ONLY_SHELL 1                        // 請參閱讀我檔案。W32 有關以下設置的資訊，如果您 shell 沒有正確地格式化 'sh -c quoted-command-line'，則需要這個設置。 請參閱下面的具體 shell 支援。
 //#define HAVE_CYGWIN_SHELL 1                            // 定義如果您有 Cygnus"cygwin" GNU Windows32 工具集。如果您定義 HAVE_CYGWIN_SHELL，請勿定義 BATCH_MODE_ONLY_SHELL
 //#define HAVE_MKS_SHELL 1                               // 定義是否有 MKS 工具集或 shell。                   如果您定義 HAVE_MKS_SHELL，請勿定義 BATCH_MODE_ONLY_SHELL

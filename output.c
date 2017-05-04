@@ -1,18 +1,18 @@
 /* Output to stdout / stderr for GNU make
-Copyright (C) 2013-2016 Free Software Foundation, Inc.
-This file is part of GNU Make.
+  Copyright (C) 2013-2016 Free Software Foundation, Inc.
+  This file is part of GNU Make.
 
-GNU Make is free software; you can redistribute it and/or modify it under the
-terms of the GNU General Public License as published by the Free Software
-Foundation; either version 3 of the License, or (at your option) any later
-version.
+  GNU Make is free software; you can redistribute it and/or modify it under the
+  terms of the GNU General Public License as published by the Free Software
+  Foundation; either version 3 of the License, or (at your option) any later
+  version.
 
-GNU Make is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+  GNU Make is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with
-this program.  If not, see <http://www.gnu.org/licenses/>.  */
+  You should have received a copy of the GNU General Public License along with
+  this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "makeint.h"
 #include "job.h"
@@ -24,19 +24,19 @@ this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdarg.h>
 
 #ifdef HAVE_UNISTD_H
-# include <unistd.h>
+  #include <unistd.h>
 #endif
 
 #ifdef HAVE_FCNTL_H
-# include <fcntl.h>
+  #include <fcntl.h>
 #else
-# include <sys/file.h>
+  #include <sys/file.h>
 #endif
 
 #ifdef WINDOWS32
-# include <windows.h>
-# include <io.h>
-# include "sub_proc.h"
+  #include <windows.h>
+  #include <io.h>
+  #include "sub_proc.h"
 #endif /* WINDOWS32 */
 
 struct output *output_context = NULL;
@@ -47,115 +47,95 @@ unsigned int stdio_traced = 0;
 #define OUTPUT_ISSET(_out) ((_out)->out >= 0 || (_out)->err >= 0)
 
 #ifdef HAVE_FCNTL_H
-# define STREAM_OK(_s) ((fcntl (fileno (_s), F_GETFD) != -1) || (errno != EBADF))
+  #define STREAM_OK(_s) ((fcntl (fileno (_s), F_GETFD) != -1) || (errno != EBADF))
 #else
-# define STREAM_OK(_s) 1
+  #define STREAM_OK(_s) 1
 #endif
 
 #if defined(HAVE_UMASK)
-# define UMASK(_m)  umask (_m)
-# define MODE_T     mode_t
+  #define UMASK(_m)  umask (_m)
+  #define MODE_T     mode_t
 #else
-# define UMASK(_m)  0
-# define MODE_T     int
+  #define UMASK(_m)  0
+  #define MODE_T     int
 #endif
 
 /* Write a string to the current STDOUT or STDERR.  */
 static void
-_outputs (struct output *out, int is_err, const char *msg)
-{
-  if (! out || ! out->syncout)
-    {
-      FILE *f = is_err ? stderr : stdout;
-      fputs (msg, f);
-      fflush (f);
+_outputs(struct output *out, int is_err, const char *msg) {
+  if(! out || ! out->syncout) {
+    FILE *f = is_err ? stderr : stdout;
+    fputs(msg, f);
+    fflush(f);
+  } else {
+    int fd = is_err ? out->err : out->out;
+    int len = strlen(msg);
+    int r;
+    EINTRLOOP(r, lseek(fd, 0, SEEK_END));
+    while(1) {
+      EINTRLOOP(r, write(fd, msg, len));
+      if(r == len || r <= 0)
+        break;
+      len -= r;
+      msg += r;
     }
-  else
-    {
-      int fd = is_err ? out->err : out->out;
-      int len = strlen (msg);
-      int r;
-
-      EINTRLOOP (r, lseek (fd, 0, SEEK_END));
-      while (1)
-        {
-          EINTRLOOP (r, write (fd, msg, len));
-          if (r == len || r <= 0)
-            break;
-          len -= r;
-          msg += r;
-        }
-    }
+  }
 }
 
 /* Write a message indicating that we've just entered or
    left (according to ENTERING) the current directory.  */
 
 static int
-log_working_directory (int entering)
-{
+log_working_directory(int entering) {
   static char *buf = NULL;
   static unsigned int len = 0;
   unsigned int need;
   const char *fmt;
   char *p;
-
   /* Get enough space for the longest possible output.  */
-  need = strlen (program) + INTSTR_LENGTH + 2 + 1;
-  if (starting_directory)
-    need += strlen (starting_directory);
-
+  need = strlen(program) + INTSTR_LENGTH + 2 + 1;
+  if(starting_directory)
+    need += strlen(starting_directory);
   /* Use entire sentences to give the translators a fighting chance.  */
-  if (makelevel == 0)
-    if (starting_directory == 0)
-      if (entering)
+  if(makelevel == 0)
+    if(starting_directory == 0)
+      if(entering)
         fmt = _("%s: Entering an unknown directory\n");
       else
         fmt = _("%s: Leaving an unknown directory\n");
+    else if(entering)
+      fmt = _("%s: Entering directory '%s'\n");
     else
-      if (entering)
-        fmt = _("%s: Entering directory '%s'\n");
-      else
-        fmt = _("%s: Leaving directory '%s'\n");
+      fmt = _("%s: Leaving directory '%s'\n");
+  else if(starting_directory == 0)
+    if(entering)
+      fmt = _("%s[%u]: Entering an unknown directory\n");
+    else
+      fmt = _("%s[%u]: Leaving an unknown directory\n");
+  else if(entering)
+    fmt = _("%s[%u]: Entering directory '%s'\n");
   else
-    if (starting_directory == 0)
-      if (entering)
-        fmt = _("%s[%u]: Entering an unknown directory\n");
-      else
-        fmt = _("%s[%u]: Leaving an unknown directory\n");
-    else
-      if (entering)
-        fmt = _("%s[%u]: Entering directory '%s'\n");
-      else
-        fmt = _("%s[%u]: Leaving directory '%s'\n");
-
-  need += strlen (fmt);
-
-  if (need > len)
-    {
-      buf = xrealloc (buf, need);
-      len = need;
-    }
-
+    fmt = _("%s[%u]: Leaving directory '%s'\n");
+  need += strlen(fmt);
+  if(need > len) {
+    buf = xrealloc(buf, need);
+    len = need;
+  }
   p = buf;
-  if (print_data_base_flag)
-    {
-      *(p++) = '#';
-      *(p++) = ' ';
-    }
-
-  if (makelevel == 0)
-    if (starting_directory == 0)
-      sprintf (p, fmt , program);
+  if(print_data_base_flag) {
+    *(p++) = '#';
+    *(p++) = ' ';
+  }
+  if(makelevel == 0)
+    if(starting_directory == 0)
+      sprintf(p, fmt , program);
     else
-      sprintf (p, fmt, program, starting_directory);
-  else if (starting_directory == 0)
-    sprintf (p, fmt, program, makelevel);
+      sprintf(p, fmt, program, starting_directory);
+  else if(starting_directory == 0)
+    sprintf(p, fmt, program, makelevel);
   else
-    sprintf (p, fmt, program, makelevel, starting_directory);
-
-  _outputs (NULL, 0, buf);
-
+    sprintf(p, fmt, program, makelevel, starting_directory);
+  _outputs(NULL, 0, buf);
   return 1;
 }
 
@@ -163,16 +143,14 @@ log_working_directory (int entering)
    If it fails, just ignore it.  */
 
 static void
-set_append_mode (int fd)
-{
-#if defined(F_GETFL) && defined(F_SETFL) && defined(O_APPEND)
-  int flags = fcntl (fd, F_GETFL, 0);
-  if (flags >= 0)
-    {
-      int r;
-      EINTRLOOP(r, fcntl (fd, F_SETFL, flags | O_APPEND));
-    }
-#endif
+set_append_mode(int fd) {
+  #if defined(F_GETFL) && defined(F_SETFL) && defined(O_APPEND)
+  int flags = fcntl(fd, F_GETFL, 0);
+  if(flags >= 0) {
+    int r;
+    EINTRLOOP(r, fcntl(fd, F_SETFL, flags | O_APPEND));
+  }
+  #endif
 }
 
 
@@ -185,179 +163,143 @@ static sync_handle_t sync_handle = -1;
 
 /* Set up the sync handle.  Disables output_sync on error.  */
 static int
-sync_init (void)
-{
+sync_init(void) {
   int combined_output = 0;
-
-#ifdef WINDOWS32
-  if ((!STREAM_OK (stdout) && !STREAM_OK (stderr))
-      || (sync_handle = create_mutex ()) == -1)
-    {
-      perror_with_name ("output-sync suppressed: ", "stderr");
-      output_sync = 0;
-    }
-  else
-    {
-      combined_output = same_stream (stdout, stderr);
-      prepare_mutex_handle_string (sync_handle);
-    }
-
-#else
-  if (STREAM_OK (stdout))
-    {
-      struct stat stbuf_o, stbuf_e;
-
-      sync_handle = fileno (stdout);
-      combined_output = (fstat (fileno (stdout), &stbuf_o) == 0
-                         && fstat (fileno (stderr), &stbuf_e) == 0
-                         && stbuf_o.st_dev == stbuf_e.st_dev
-                         && stbuf_o.st_ino == stbuf_e.st_ino);
-    }
-  else if (STREAM_OK (stderr))
-    sync_handle = fileno (stderr);
-  else
-    {
-      perror_with_name ("output-sync suppressed: ", "stderr");
-      output_sync = 0;
-    }
-#endif
-
+  #ifdef WINDOWS32
+  if((!STREAM_OK(stdout) && !STREAM_OK(stderr))
+      || (sync_handle = create_mutex()) == -1) {
+    perror_with_name("output-sync suppressed: ", "stderr");
+    output_sync = 0;
+  } else {
+    combined_output = same_stream(stdout, stderr);
+    prepare_mutex_handle_string(sync_handle);
+  }
+  #else
+  if(STREAM_OK(stdout)) {
+    struct stat stbuf_o, stbuf_e;
+    sync_handle = fileno(stdout);
+    combined_output = (fstat(fileno(stdout), &stbuf_o) == 0
+                       && fstat(fileno(stderr), &stbuf_e) == 0
+                       && stbuf_o.st_dev == stbuf_e.st_dev
+                       && stbuf_o.st_ino == stbuf_e.st_ino);
+  } else if(STREAM_OK(stderr))
+    sync_handle = fileno(stderr);
+  else {
+    perror_with_name("output-sync suppressed: ", "stderr");
+    output_sync = 0;
+  }
+  #endif
   return combined_output;
 }
 
 /* Support routine for output_sync() */
 static void
-pump_from_tmp (int from, FILE *to)
-{
+pump_from_tmp(int from, FILE *to) {
   static char buffer[8192];
-
-#ifdef WINDOWS32
+  #ifdef WINDOWS32
   int prev_mode;
-
   /* "from" is opened by open_tmpfd, which does it in binary mode, so
      we need the mode of "to" to match that.  */
-  prev_mode = _setmode (fileno (to), _O_BINARY);
-#endif
-
-  if (lseek (from, 0, SEEK_SET) == -1)
-    perror ("lseek()");
-
-  while (1)
-    {
-      int len;
-      EINTRLOOP (len, read (from, buffer, sizeof (buffer)));
-      if (len < 0)
-        perror ("read()");
-      if (len <= 0)
-        break;
-      if (fwrite (buffer, len, 1, to) < 1)
-        {
-          perror ("fwrite()");
-          break;
-        }
-      fflush (to);
+  prev_mode = _setmode(fileno(to), _O_BINARY);
+  #endif
+  if(lseek(from, 0, SEEK_SET) == -1)
+    perror("lseek()");
+  while(1) {
+    int len;
+    EINTRLOOP(len, read(from, buffer, sizeof(buffer)));
+    if(len < 0)
+      perror("read()");
+    if(len <= 0)
+      break;
+    if(fwrite(buffer, len, 1, to) < 1) {
+      perror("fwrite()");
+      break;
     }
-
-#ifdef WINDOWS32
+    fflush(to);
+  }
+  #ifdef WINDOWS32
   /* Switch "to" back to its original mode, so that log messages by
      Make have the same EOL format as without --output-sync.  */
-  _setmode (fileno (to), prev_mode);
-#endif
+  _setmode(fileno(to), prev_mode);
+  #endif
 }
 
 /* Obtain the lock for writing output.  */
 static void *
-acquire_semaphore (void)
-{
+acquire_semaphore(void) {
   static struct flock fl;
-
   fl.l_type = F_WRLCK;
   fl.l_whence = SEEK_SET;
   fl.l_start = 0;
   fl.l_len = 1;
-  if (fcntl (sync_handle, F_SETLKW, &fl) != -1)
+  if(fcntl(sync_handle, F_SETLKW, &fl) != -1)
     return &fl;
-  perror ("fcntl()");
+  perror("fcntl()");
   return NULL;
 }
 
 /* Release the lock for writing output.  */
 static void
-release_semaphore (void *sem)
-{
+release_semaphore(void *sem) {
   struct flock *flp = (struct flock *)sem;
   flp->l_type = F_UNLCK;
-  if (fcntl (sync_handle, F_SETLKW, flp) == -1)
-    perror ("fcntl()");
+  if(fcntl(sync_handle, F_SETLKW, flp) == -1)
+    perror("fcntl()");
 }
-
+#pragma warning( push )
+#pragma warning(disable:4189)
 /* Returns a file descriptor to a temporary file.  The file is automatically
    closed/deleted on exit.  Don't use a FILE* stream.  */
 int
-output_tmpfd (void)
-{
-  MODE_T mask = UMASK (0077);
+output_tmpfd(void) {
+  MODE_T mask = UMASK(0077);
   int fd = -1;
-  FILE *tfile = tmpfile ();
-
-  if (! tfile)
-    pfatal_with_name ("tmpfile");
-
+  FILE *tfile = tmpfile();
+  if(! tfile)
+    pfatal_with_name("tmpfile");
   /* Create a duplicate so we can close the stream.  */
-  fd = dup (fileno (tfile));
-  if (fd < 0)
-    pfatal_with_name ("dup");
-
-  fclose (tfile);
-
-  set_append_mode (fd);
-
-  UMASK (mask);
-
+  fd = dup(fileno(tfile));
+  if(fd < 0)
+    pfatal_with_name("dup");
+  fclose(tfile);
+  set_append_mode(fd);
+  UMASK(mask);
   return fd;
 }
+
 
 /* Adds file descriptors to the child structure to support output_sync; one
    for stdout and one for stderr as long as they are open.  If stdout and
    stderr share a device they can share a temp file too.
    Will reset output_sync on error.  */
 static void
-setup_tmpfile (struct output *out)
-{
+setup_tmpfile(struct output *out) {
   /* Is make's stdout going to the same place as stderr?  */
   static int combined_output = -1;
-
-  if (combined_output < 0)
-    combined_output = sync_init ();
-
-  if (STREAM_OK (stdout))
-    {
-      int fd = output_tmpfd ();
-      if (fd < 0)
+  if(combined_output < 0)
+    combined_output = sync_init();
+  if(STREAM_OK(stdout)) {
+    int fd = output_tmpfd();
+    if(fd < 0)
+      goto error;
+    CLOSE_ON_EXEC(fd);
+    out->out = fd;
+  }
+  if(STREAM_OK(stderr)) {
+    if(out->out != OUTPUT_NONE && combined_output)
+      out->err = out->out;
+    else {
+      int fd = output_tmpfd();
+      if(fd < 0)
         goto error;
-      CLOSE_ON_EXEC (fd);
-      out->out = fd;
+      CLOSE_ON_EXEC(fd);
+      out->err = fd;
     }
-
-  if (STREAM_OK (stderr))
-    {
-      if (out->out != OUTPUT_NONE && combined_output)
-        out->err = out->out;
-      else
-        {
-          int fd = output_tmpfd ();
-          if (fd < 0)
-            goto error;
-          CLOSE_ON_EXEC (fd);
-          out->err = fd;
-        }
-    }
-
+  }
   return;
-
   /* If we failed to create a temp file, disable output sync going forward.  */
- error:
-  output_close (out);
+error:
+  output_close(out);
   output_sync = OUTPUT_SYNC_NONE;
 }
 
@@ -367,50 +309,39 @@ setup_tmpfile (struct output *out)
    them to "real" stdout/stderr when a semaphore can be obtained. */
 
 void
-output_dump (struct output *out)
-{
-  int outfd_not_empty = FD_NOT_EMPTY (out->out);
-  int errfd_not_empty = FD_NOT_EMPTY (out->err);
-
-  if (outfd_not_empty || errfd_not_empty)
-    {
-      int traced = 0;
-
-      /* Try to acquire the semaphore.  If it fails, dump the output
-         unsynchronized; still better than silently discarding it.
-         We want to keep this lock for as little time as possible.  */
-      void *sem = acquire_semaphore ();
-
-      /* Log the working directory for this dump.  */
-      if (print_directory_flag && output_sync != OUTPUT_SYNC_RECURSE)
-        traced = log_working_directory (1);
-
-      if (outfd_not_empty)
-        pump_from_tmp (out->out, stdout);
-      if (errfd_not_empty && out->err != out->out)
-        pump_from_tmp (out->err, stderr);
-
-      if (traced)
-        log_working_directory (0);
-
-      /* Exit the critical section.  */
-      if (sem)
-        release_semaphore (sem);
-
-      /* Truncate and reset the output, in case we use it again.  */
-      if (out->out != OUTPUT_NONE)
-        {
-          int e;
-          lseek (out->out, 0, SEEK_SET);
-          EINTRLOOP (e, ftruncate (out->out, 0));
-        }
-      if (out->err != OUTPUT_NONE && out->err != out->out)
-        {
-          int e;
-          lseek (out->err, 0, SEEK_SET);
-          EINTRLOOP (e, ftruncate (out->err, 0));
-        }
+output_dump(struct output *out) {
+  int outfd_not_empty = FD_NOT_EMPTY(out->out);
+  int errfd_not_empty = FD_NOT_EMPTY(out->err);
+  if(outfd_not_empty || errfd_not_empty) {
+    int traced = 0;
+    /* Try to acquire the semaphore.  If it fails, dump the output
+       unsynchronized; still better than silently discarding it.
+       We want to keep this lock for as little time as possible.  */
+    void *sem = acquire_semaphore();
+    /* Log the working directory for this dump.  */
+    if(print_directory_flag && output_sync != OUTPUT_SYNC_RECURSE)
+      traced = log_working_directory(1);
+    if(outfd_not_empty)
+      pump_from_tmp(out->out, stdout);
+    if(errfd_not_empty && out->err != out->out)
+      pump_from_tmp(out->err, stderr);
+    if(traced)
+      log_working_directory(0);
+    /* Exit the critical section.  */
+    if(sem)
+      release_semaphore(sem);
+    /* Truncate and reset the output, in case we use it again.  */
+    if(out->out != OUTPUT_NONE) {
+      int e;
+      lseek(out->out, 0, SEEK_SET);
+      EINTRLOOP(e, ftruncate(out->out, 0));
     }
+    if(out->err != OUTPUT_NONE && out->err != out->out) {
+      int e;
+      lseek(out->err, 0, SEEK_SET);
+      EINTRLOOP(e, ftruncate(out->err, 0));
+    }
+  }
 }
 #endif /* NO_OUTPUT_SYNC */
 
@@ -418,63 +349,56 @@ output_dump (struct output *out)
 /* Provide support for temporary files.  */
 
 #ifndef HAVE_STDLIB_H
-# ifdef HAVE_MKSTEMP
-int mkstemp (char *template);
-# else
-char *mktemp (char *template);
-# endif
+  #ifdef HAVE_MKSTEMP
+    int mkstemp(char *template);
+  #else
+    char *mktemp(char *template);
+  #endif
 #endif
 
 FILE *
-output_tmpfile (char **name, const char *template)
-{
+output_tmpfile(char **name, const char *template) {
   FILE *file;
-#ifdef HAVE_FDOPEN
+  #ifdef HAVE_FDOPEN
   int fd;
-#endif
-
+  #endif
   /* Preserve the current umask, and set a restrictive one for temp files.  */
-  MODE_T mask = UMASK (0077);
-
-#if defined(HAVE_MKSTEMP) || defined(HAVE_MKTEMP)
+  MODE_T mask = UMASK(0077);
+  #if defined(HAVE_MKSTEMP) || defined(HAVE_MKTEMP)
 # define TEMPLATE_LEN   strlen (template)
-#else
+  #else
 # define TEMPLATE_LEN   L_tmpnam
-#endif
-  *name = xmalloc (TEMPLATE_LEN + 1);
-  strcpy (*name, template);
-
-#if defined(HAVE_MKSTEMP) && defined(HAVE_FDOPEN)
+  #endif
+  *name = xmalloc(TEMPLATE_LEN + 1);
+  strcpy(*name, template);
+  #if defined(HAVE_MKSTEMP) && defined(HAVE_FDOPEN)
   /* It's safest to use mkstemp(), if we can.  */
-  EINTRLOOP (fd, mkstemp (*name));
-  if (fd == -1)
+  EINTRLOOP(fd, mkstemp(*name));
+  if(fd == -1)
     file = NULL;
   else
-    file = fdopen (fd, "w");
-#else
-# ifdef HAVE_MKTEMP
-  (void) mktemp (*name);
-# else
-  (void) tmpnam (*name);
-# endif
-
-# ifdef HAVE_FDOPEN
+    file = fdopen(fd, "w");
+  #else
+  # ifdef HAVE_MKTEMP
+  (void) mktemp(*name);
+  # else
+  (void) tmpnam(*name);
+  # endif
+  # ifdef HAVE_FDOPEN
   /* Can't use mkstemp(), but guard against a race condition.  */
-  EINTRLOOP (fd, open (*name, O_CREAT|O_EXCL|O_WRONLY, 0600));
-  if (fd == -1)
+  EINTRLOOP(fd, open(*name, O_CREAT | O_EXCL | O_WRONLY, 0600));
+  if(fd == -1)
     return 0;
-  file = fdopen (fd, "w");
-# else
+  file = fdopen(fd, "w");
+  # else
   /* Not secure, but what can we do?  */
-  file = fopen (*name, "w");
-# endif
-#endif
-
-  UMASK (mask);
-
+  file = fopen(*name, "w");
+  # endif
+  #endif
+  UMASK(mask);
   return file;
 }
-
+#pragma warning(pop)
 
 /* This code is stolen from gnulib.
    If/when we abandon the requirement to work with K&R compilers, we can
@@ -507,240 +431,193 @@ output_tmpfile (char **name, const char *template)
    on being able to detect failure in other tools via their exit status.  */
 
 static void
-close_stdout (void)
-{
-  int prev_fail = ferror (stdout);
-  int fclose_fail = fclose (stdout);
-
-  if (prev_fail || fclose_fail)
-    {
-      if (fclose_fail)
-        perror_with_name (_("write error: stdout"), "");
-      else
-        O (error, NILF, _("write error: stdout"));
-      exit (MAKE_TROUBLE);
-    }
+close_stdout(void) {
+  int prev_fail = ferror(stdout);
+  int fclose_fail = fclose(stdout);
+  if(prev_fail || fclose_fail) {
+    if(fclose_fail)
+      perror_with_name(_("write error: stdout"), "");
+    else
+      O(error, NILF, _("write error: stdout"));
+    exit(MAKE_TROUBLE);
+  }
 }
 
 
 void
-output_init (struct output *out)
-{
-  if (out)
-    {
-      out->out = out->err = OUTPUT_NONE;
-      out->syncout = !!output_sync;
-      return;
-    }
-
+output_init(struct output *out) {
+  if(out) {
+    out->out = out->err = OUTPUT_NONE;
+    out->syncout = !!output_sync;
+    return;
+  }
   /* Configure this instance of make.  Be sure stdout is line-buffered.  */
-
-#ifdef HAVE_SETVBUF
-# ifdef SETVBUF_REVERSED
-  setvbuf (stdout, _IOLBF, xmalloc (BUFSIZ), BUFSIZ);
-# else  /* setvbuf not reversed.  */
+  #ifdef HAVE_SETVBUF
+  # ifdef SETVBUF_REVERSED
+  setvbuf(stdout, _IOLBF, xmalloc(BUFSIZ), BUFSIZ);
+  # else  /* setvbuf not reversed.  */
   /* Some buggy systems lose if we pass 0 instead of allocating ourselves.  */
-  setvbuf (stdout, 0, _IOLBF, BUFSIZ);
-# endif /* setvbuf reversed.  */
-#elif HAVE_SETLINEBUF
-  setlinebuf (stdout);
-#endif  /* setlinebuf missing.  */
-
+  setvbuf(stdout, 0, _IOLBF, BUFSIZ);
+  # endif /* setvbuf reversed.  */
+  #elif HAVE_SETLINEBUF
+  setlinebuf(stdout);
+  #endif  /* setlinebuf missing.  */
   /* Force stdout/stderr into append mode.  This ensures parallel jobs won't
      lose output due to overlapping writes.  */
-  set_append_mode (fileno (stdout));
-  set_append_mode (fileno (stderr));
-
-#ifdef HAVE_ATEXIT
-  if (STREAM_OK (stdout))
-    atexit (close_stdout);
-#endif
+  set_append_mode(fileno(stdout));
+  set_append_mode(fileno(stderr));
+  #ifdef HAVE_ATEXIT
+  if(STREAM_OK(stdout))
+    atexit(close_stdout);
+  #endif
 }
 
 void
-output_close (struct output *out)
-{
-  if (! out)
-    {
-      if (stdio_traced)
-        log_working_directory (0);
-      return;
-    }
-
-#ifndef NO_OUTPUT_SYNC
-  output_dump (out);
-#endif
-
-  if (out->out >= 0)
-    close (out->out);
-  if (out->err >= 0 && out->err != out->out)
-    close (out->err);
-
-  output_init (out);
+output_close(struct output *out) {
+  if(! out) {
+    if(stdio_traced)
+      log_working_directory(0);
+    return;
+  }
+  #ifndef NO_OUTPUT_SYNC
+  output_dump(out);
+  #endif
+  if(out->out >= 0)
+    close(out->out);
+  if(out->err >= 0 && out->err != out->out)
+    close(out->err);
+  output_init(out);
 }
 
 /* We're about to generate output: be sure it's set up.  */
 void
-output_start (void)
-{
-#ifndef NO_OUTPUT_SYNC
+output_start(void) {
+  #ifndef NO_OUTPUT_SYNC
   /* If we're syncing output make sure the temporary file is set up.  */
-  if (output_context && output_context->syncout)
-    if (! OUTPUT_ISSET(output_context))
-      setup_tmpfile (output_context);
-#endif
-
+  if(output_context && output_context->syncout)
+    if(! OUTPUT_ISSET(output_context))
+      setup_tmpfile(output_context);
+  #endif
   /* If we're not syncing this output per-line or per-target, make sure we emit
      the "Entering..." message where appropriate.  */
-  if (output_sync == OUTPUT_SYNC_NONE || output_sync == OUTPUT_SYNC_RECURSE)
-    if (! stdio_traced && print_directory_flag)
-      stdio_traced = log_working_directory (1);
+  if(output_sync == OUTPUT_SYNC_NONE || output_sync == OUTPUT_SYNC_RECURSE)
+    if(! stdio_traced && print_directory_flag)
+      stdio_traced = log_working_directory(1);
 }
 
 void
-outputs (int is_err, const char *msg)
-{
-  if (! msg || *msg == '\0')
+outputs(int is_err, const char *msg) {
+  if(! msg || *msg == '\0')
     return;
-
-  output_start ();
-
-  _outputs (output_context, is_err, msg);
+  output_start();
+  _outputs(output_context, is_err, msg);
 }
 
 
-static struct fmtstring
-  {
-    char *buffer;
-    size_t size;
-  } fmtbuf = { NULL, 0 };
+static struct fmtstring {
+  char *buffer;
+  size_t size;
+} fmtbuf = { NULL, 0 };
 
 static char *
-get_buffer (size_t need)
-{
+get_buffer(size_t need) {
   /* Make sure we have room.  NEED includes space for \0.  */
-  if (need > fmtbuf.size)
-    {
-      fmtbuf.size += need * 2;
-      fmtbuf.buffer = xrealloc (fmtbuf.buffer, fmtbuf.size);
-    }
-
-  fmtbuf.buffer[need-1] = '\0';
-
+  if(need > fmtbuf.size) {
+    fmtbuf.size += need * 2;
+    fmtbuf.buffer = xrealloc(fmtbuf.buffer, fmtbuf.size);
+  }
+  fmtbuf.buffer[need - 1] = '\0';
   return fmtbuf.buffer;
 }
 
 /* Print a message on stdout.  */
 
 void
-message (int prefix, size_t len, const char *fmt, ...)
-{
+message(int prefix, size_t len, const char *fmt, ...) {
   va_list args;
   char *p;
-
-  len += strlen (fmt) + strlen (program) + INTSTR_LENGTH + 4 + 1 + 1;
-  p = get_buffer (len);
-
-  if (prefix)
-    {
-      if (makelevel == 0)
-        sprintf (p, "%s: ", program);
-      else
-        sprintf (p, "%s[%u]: ", program, makelevel);
-      p += strlen (p);
-    }
-
-  va_start (args, fmt);
-  vsprintf (p, fmt, args);
-  va_end (args);
-
-  strcat (p, "\n");
-
-  assert (fmtbuf.buffer[len-1] == '\0');
-  outputs (0, fmtbuf.buffer);
+  len += strlen(fmt) + strlen(program) + INTSTR_LENGTH + 4 + 1 + 1;
+  p = get_buffer(len);
+  if(prefix) {
+    if(makelevel == 0)
+      sprintf(p, "%s: ", program);
+    else
+      sprintf(p, "%s[%u]: ", program, makelevel);
+    p += strlen(p);
+  }
+  va_start(args, fmt);
+  vsprintf(p, fmt, args);
+  va_end(args);
+  strcat(p, "\n");
+  assert(fmtbuf.buffer[len - 1] == '\0');
+  outputs(0, fmtbuf.buffer);
 }
 
 /* Print an error message.  */
 
 void
-error (const floc *flocp, size_t len, const char *fmt, ...)
-{
+error(const floc *flocp, size_t len, const char *fmt, ...) {
   va_list args;
   char *p;
-
-  len += (strlen (fmt) + strlen (program)
-          + (flocp && flocp->filenm ? strlen (flocp->filenm) : 0)
+  len += (strlen(fmt) + strlen(program)
+          + (flocp && flocp->filenm ? strlen(flocp->filenm) : 0)
           + INTSTR_LENGTH + 4 + 1 + 1);
-  p = get_buffer (len);
-
-  if (flocp && flocp->filenm)
-    sprintf (p, "%s:%lu: ", flocp->filenm, flocp->lineno + flocp->offset);
-  else if (makelevel == 0)
-    sprintf (p, "%s: ", program);
+  p = get_buffer(len);
+  if(flocp && flocp->filenm)
+    sprintf(p, "%s:%lu: ", flocp->filenm, flocp->lineno + flocp->offset);
+  else if(makelevel == 0)
+    sprintf(p, "%s: ", program);
   else
-    sprintf (p, "%s[%u]: ", program, makelevel);
-  p += strlen (p);
-
-  va_start (args, fmt);
-  vsprintf (p, fmt, args);
-  va_end (args);
-
-  strcat (p, "\n");
-
-  assert (fmtbuf.buffer[len-1] == '\0');
-  outputs (1, fmtbuf.buffer);
+    sprintf(p, "%s[%u]: ", program, makelevel);
+  p += strlen(p);
+  va_start(args, fmt);
+  vsprintf(p, fmt, args);
+  va_end(args);
+  strcat(p, "\n");
+  assert(fmtbuf.buffer[len - 1] == '\0');
+  outputs(1, fmtbuf.buffer);
 }
 
 /* Print an error message and exit.  */
 
 void
-fatal (const floc *flocp, size_t len, const char *fmt, ...)
-{
+fatal(const floc *flocp, size_t len, const char *fmt, ...) {
   va_list args;
   const char *stop = _(".  Stop.\n");
   char *p;
-
-  len += (strlen (fmt) + strlen (program)
-          + (flocp && flocp->filenm ? strlen (flocp->filenm) : 0)
-          + INTSTR_LENGTH + 8 + strlen (stop) + 1);
-  p = get_buffer (len);
-
-  if (flocp && flocp->filenm)
-    sprintf (p, "%s:%lu: *** ", flocp->filenm, flocp->lineno + flocp->offset);
-  else if (makelevel == 0)
-    sprintf (p, "%s: *** ", program);
+  len += (strlen(fmt) + strlen(program)
+          + (flocp && flocp->filenm ? strlen(flocp->filenm) : 0)
+          + INTSTR_LENGTH + 8 + strlen(stop) + 1);
+  p = get_buffer(len);
+  if(flocp && flocp->filenm)
+    sprintf(p, "%s:%lu: *** ", flocp->filenm, flocp->lineno + flocp->offset);
+  else if(makelevel == 0)
+    sprintf(p, "%s: *** ", program);
   else
-    sprintf (p, "%s[%u]: *** ", program, makelevel);
-  p += strlen (p);
-
-  va_start (args, fmt);
-  vsprintf (p, fmt, args);
-  va_end (args);
-
-  strcat (p, stop);
-
-  assert (fmtbuf.buffer[len-1] == '\0');
-  outputs (1, fmtbuf.buffer);
-
-  die (MAKE_FAILURE);
+    sprintf(p, "%s[%u]: *** ", program, makelevel);
+  p += strlen(p);
+  va_start(args, fmt);
+  vsprintf(p, fmt, args);
+  va_end(args);
+  strcat(p, stop);
+  assert(fmtbuf.buffer[len - 1] == '\0');
+  outputs(1, fmtbuf.buffer);
+  die(MAKE_FAILURE);
 }
 
 /* Print an error message from errno.  */
 
 void
-perror_with_name (const char *str, const char *name)
-{
-  const char *err = strerror (errno);
-  OSSS (error, NILF, _("%s%s: %s"), str, name, err);
+perror_with_name(const char *str, const char *name) {
+  const char *err = strerror(errno);
+  OSSS(error, NILF, _("%s%s: %s"), str, name, err);
 }
 
 /* Print an error message from errno and exit.  */
 
 void
-pfatal_with_name (const char *name)
-{
-  const char *err = strerror (errno);
-  OSS (fatal, NILF, _("%s: %s"), name, err);
-
+pfatal_with_name(const char *name) {
+  const char *err = strerror(errno);
+  OSS(fatal, NILF, _("%s: %s"), name, err);
   /* NOTREACHED */
 }
