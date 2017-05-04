@@ -20,5 +20,6 @@ set MAKE=%2
 set MAKEFILE=%1
 if x%2 == x set MAKE=nmake
 %MAKE% /f %MAKEFILE%
-if ERRORLEVEL 1 exit /B
 cd ..\..
+if ERRORLEVEL 1 exit /B
+

@@ -60,3 +60,7 @@ configh.dos
 make-[0-9]*/
 make-[0-9]*.tar.*
 checkcfg.*.log
+
+
+[Dd]ebug*/
+[Rr]elease*/
