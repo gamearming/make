@@ -13,302 +13,164 @@
   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License along with
-  this program.  If not, see <http://www.gnu.org/licenses/>.  */
+  this program.  If not, see <http://www.gnu.org/licenses/>.
+  ////////////////////////////////////////////////////////////
+  VC 快速取代語法 Define to 1 if using {(:q)} 如果使用 \1 則定義為 1。
+*/
 
-/* Suppress some Visual C++ warnings.
-   Maybe after the code cleanup for ISO C we can remove some/all of these.  */
+// 禁止顯示某些 Visual C++  警告。
+// 也許在 ISO C 代碼清理之後, 我們可以刪除其中的一些/全部。
 #if _MSC_VER > 1000
-  #pragma warning(disable:4100) /* unreferenced formal parameter */
-  #pragma warning(disable:4102) /* unreferenced label */
-  #pragma warning(disable:4127) /* conditional expression is constant */
-  #pragma warning(disable:4131) /* uses old-style declarator */
-  #pragma warning(disable:4702) /* unreachable code */
-  #define _CRT_SECURE_NO_WARNINGS  /* function or variable may be unsafe */
-  #define _CRT_NONSTDC_NO_WARNINGS /* functions w/o a leading underscore */
+  #pragma warning(disable:4100)                        // 未參考的型式參數
+  #pragma warning(disable:4102)                        // 未參考的標籤
+  #pragma warning(disable:4127)                        // 條件運算式為常量
+  #pragma warning(disable:4131)                        // 指定的函式宣告是舊樣式的宣告。
+  #pragma warning(disable:4702)                        // 有不可能執行到的程式碼
+  #define _CRT_SECURE_NO_WARNINGS                      // 函數或變量可能不安全 function or variable may be unsafe
+  #define _CRT_NONSTDC_NO_WARNINGS                     // 函數 w/o 前導底線    functions w/o a leading underscore
 #endif
 
 #ifdef __MINGW32__
-  #define HAVE_FDOPEN        1 // Define to 1 if you have the 'fdopen' function.
-  #define HAVE_GETTIMEOFDAY  1 // Define to 1 if you have a standard gettimeofday function
-  #define HAVE_INTTYPES_H    1 // Define to 1 if you have the <inttypes.h> header file.
-  #define HAVE_STDINT_H      1 // Define to 1 if you have the <stdint.h> header file.
-  #define HAVE_STRCASECMP    1 // Define to 1 if you have the 'strcasecmp' function.
-  #define HAVE_STRINGS_H     1 // Define to 1 if you have the <strings.h> header file.
-  #define HAVE_STRNCASECMP   1 // Define to 1 if you have the 'strncasecmp' function.
-  #define HAVE_STRNICMP      1 // Define to 1 if you have the 'strnicmp' function.
-  #define HAVE_SYS_PARAM_H   1 // Define to 1 if you have the <sys/param.h> header file.
-  #define HAVE_SYS_TIME_H    1 // Define to 1 if you have the <sys/time.h> header file.
-  #define HAVE_UNISTD_H      1 // Define to 1 if you have the <unistd.h> header file.
-  #define TIME_WITH_SYS_TIME 1 // Define to 1 if you can safely include both <sys/time.h> and <time.h>.
+  #define HAVE_INTTYPES_H    1                         // 如果有 <inttypes.h> 頭文件。
+  #define HAVE_STDINT_H      1                         // 如果有 <stdint.h> 頭文件。
+  #define HAVE_STRINGS_H     1                         // 如果有 <strings.h> 頭文件。
+  #define HAVE_SYS_PARAM_H   1                         // 如果有 <sys/param.h> 頭文件。
+  #define HAVE_SYS_TIME_H    1                         // 如果有 <sys/time.h> 頭文件。
+  #define HAVE_UNISTD_H      1                         // 如果有 <unistd.h> 頭文件。
+  #define HAVE_STRCASECMP    1                         // 如果有 'strcasecmp' 函數。
+  #define HAVE_STRNCASECMP   1                         // 如果有 'strncasecmp' 函數。
+  #define HAVE_STRNICMP      1                         // 如果有 'strnicmp' 函數。
+  #define HAVE_FDOPEN        1                         // 如果有 'fdopen' 函數。
+  #define HAVE_GETTIMEOFDAY  1                         // 如果有標準的 gettimeofday 函數, 則定義為1
+  #define TIME_WITH_SYS_TIME 1                         // 如果可以安全地包括 <sys/time.h> 和 <time.h> 則定義為1。
 #endif
 
-/* Define to 1 if the 'closedir' function returns void instead of 'int'. */
-/* #undef CLOSEDIR_VOID */
-
-/* Define to one of '_getb67', 'GETB67', 'getb67' for Cray-2 and Cray-YMP
-   systems. This function is required for 'alloca.c' support on those systems.
-*/
-/* #undef CRAY_STACKSEG_END */
-
-/* Define to 1 if using 'alloca.c'. */
-/* #undef C_ALLOCA */
-
-/* Define to 1 if using 'getloadavg.c'. */
-#define C_GETLOADAVG 1
-
-/* Define to 1 for DGUX with <sys/dg_sys_info.h>. */
-/* #undef DGUX */
-
-/* Define to 1 if translation of program messages to the user's native
-   language is requested. */
-/* #undef ENABLE_NLS */
-
-/* Use high resolution file timestamps if nonzero. */
-#define FILE_TIMESTAMP_HI_RES 0
-
-/* Define to 1 if the 'getloadavg' function needs to be run setuid or setgid.
-*/
-/* #undef GETLOADAVG_PRIVILEGED */
-
-/* Define to 1 if you have 'alloca', as a function or macro. */
-#define HAVE_ALLOCA 1
-
-/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
-*/
-/* #undef HAVE_ALLOCA_H */
-
-/* Define to 1 if you have the 'atexit' function. */
-#define HAVE_ATEXIT 1
-
-/* Use case insensitive file names */
-/* #undef HAVE_CASE_INSENSITIVE_FS */
-
-/* Define to 1 if you have the clock_gettime function. */
-/* #undef HAVE_CLOCK_GETTIME */
-
-/* Embed GNU Guile support.  Windows build sets this on the
-   compilation command line.  */
-/* #undef HAVE_GUILE */
-
-
-
-/* Define to 1 if you have the declaration of 'bsd_signal', and to 0 if you
-   don't. */
-#define HAVE_DECL_BSD_SIGNAL 0
-
-/* Define to 1 if you have the declaration of 'sys_siglist', and to 0 if you
-   don't. */
-#define HAVE_DECL_SYS_SIGLIST 0
-
-/* Define to 1 if you have the declaration of '_sys_siglist', and to 0 if you
-   don't. */
-#define HAVE_DECL__SYS_SIGLIST 0
-
-/* Define to 1 if you have the declaration of '__sys_siglist', and to 0 if you
-   don't. */
-#define HAVE_DECL___SYS_SIGLIST 0
-
-/* Define to 1 if you have the <dirent.h> header file, and it defines 'DIR'.
-*/
-#define HAVE_DIRENT_H 1
-
-/* Define to 1 if you have the <direct.h> header file, and it defines getcwd()
-   and chdir().
-*/
 #if (defined(_MSC_VER) || defined(__BORLANDC__)) && !defined(__INTERIX)
-  #define HAVE_DIRECT_H 1
+  #define HAVE_DIRECT_H 1      // 如果有 <direct.h> 頭文件和定義 getcwd() 和 chdir().
 #endif
 
-/* Use platform specific coding */
-#define HAVE_DOS_PATHS 1
-
-/* Define to 1 if you have the 'dup2' function. */
-#define HAVE_DUP2 1
-
-/* Define to 1 if you have the <fcntl.h> header file. */
-#define HAVE_FCNTL_H 1
-
-/* Define to 1 if you have the 'fileno' function. */
-#define HAVE_FILENO 1
-
-/* Define to 1 if you have the 'getcwd' function.  */
-#define HAVE_GETCWD 1
-
-/* Define to 1 if you have the 'getgroups' function. */
-/* #undef HAVE_GETGROUPS */
-
-/* Define to 1 if you have the 'gethostbyname' function. */
-/* #undef HAVE_GETHOSTBYNAME */
-
-/* Define to 1 if you have the 'gethostname' function. */
-/* #undef HAVE_GETHOSTNAME */
-
-/* Define to 1 if you have the 'getloadavg' function. */
-/* #undef HAVE_GETLOADAVG */
-
-/* Define to 1 if you have the 'getrlimit' function. */
-/* #undef HAVE_GETRLIMIT */
-
-// #undef HAVE_GETTEXT   // 定義 GNU gettext()   函數是否已存在或預先安裝。
-// #undef HAVE_DCGETTEXT // 定義 GNU dcgettext() 函數是否已存在或預先安裝。
-// #undef HAVE_ICONV     // 定義是否具有 iconv() 函數。
-
-/* Define to 1 if you have the 'dgc' library (-ldgc). */
-/* #undef HAVE_LIBDGC */
-
-/* Define to 1 if you have the 'kstat' library (-lkstat). */
-/* #undef HAVE_LIBKSTAT */
-
-/* Define to 1 if you have the <limits.h> header file. */
-#define HAVE_LIMITS_H 1
-
-/* Define to 1 if you have the 'lstat' function. */
-/* #undef HAVE_LSTAT */
-
-/* Define to 1 if you have the <mach/mach.h> header file. */
-/* #undef HAVE_MACH_MACH_H */
-
-/* Define to 1 if you have the <memory.h> header file. */
-#define HAVE_MEMORY_H 1
-
-/* Define to 1 if you have the 'mkstemp' function. */
-/* #undef HAVE_MKSTEMP */
-
-/* Define to 1 if you have the 'mktemp' function. */
-#define HAVE_MKTEMP 1
-
-
-// #undef HAVE_NDIR_H            // Define to 1 if you have the <ndir.h> header file, and it defines 'DIR'
-// #undef HAVE_NLIST_H           // Define to 1 if you have the <nlist.h> header file
-// #undef HAVE_PIPE              // Define to 1 if you have the 'pipe' function
-// #undef HAVE_PSTAT_GETDYNAMIC  // Define to 1 if you have the 'pstat_getdynamic' function
-// #undef HAVE_READLINK          // Define to 1 if you have the 'readlink' function
-// #undef HAVE_REALPATH          // Define to 1 if you have the 'realpath' function
-// #undef HAVE_SA_RESTART        // Define to 1 if <signal.h> defines the SA_RESTART constant
-// #undef HAVE_SETEGID           // Define to 1 if you have the 'setegid' function
-// #undef HAVE_SETEUID           // Define to 1 if you have the 'seteuid' function
-// #undef HAVE_SETLINEBUF        // Define to 1 if you have the 'setlinebuf' function
-// #undef HAVE_SETREGID          // Define to 1 if you have the 'setregid' function
-// #undef HAVE_SETREUID          // Define to 1 if you have the 'setreuid' function
-// #undef HAVE_SETRLIMIT         // Define to 1 if you have the 'setrlimit' function
-#define HAVE_SETVBUF 1           // Define to 1 if you have the 'setvbuf' function.
-// #undef HAVE_SIGACTION         // Define to 1 if you have the 'sigaction' function
-// #undef HAVE_SIGSETMASK        // Define to 1 if you have the 'sigsetmask' function
-// #undef HAVE_SOCKET            // Define to 1 if you have the 'socket' function
-
-#define HAVE_STDLIB_H 1 // 如果有 <stdlib.h> 頭文件，則定義為 1。
-#define HAVE_STRING_H 1 // 如果有 <string.h> 頭文件，則定義為 1。
-#define HAVE_STRCMPI  1 // 如果有 "strcmpi" 函數，則定義為 1。
-#define HAVE_STRCOLL  1 // 如果有 "strcoll" 函數和它被正確定義。
-#define HAVE_STRDUP   1 // 如果有 "strdup" 函數，則定義為 1。
-#define HAVE_STRERROR 1 // 如果有 "strerror" 函數，則定義為 1。
-#define HAVE_STRICMP  1 // 如果有 "stricmp" 函數，則定義為 1。
-//#undef HAVE_STRNCMPI  // 如果有 "strncmpi" 函數，則定義為 1。
-//#undef HAVE_STRNDUP   // 如果有 "strndup" 函數，則定義為 1。
-//#undef HAVE_STRSIGNAL // 如果有 "strsignal" 函數，則定義為 1。
-#define HAVE_ISATTY 1                                    // Define to 1 if you have the `isatty' function.
-#define HAVE_TTYNAME 1                                   // Define to 1 if you have the `ttyname' function.
+//#undef CLOSEDIR_VOID                                   // 如果 "closedir" 函數返回 void 而不是 "int", 則定義為 1。
+//#undef CRAY_STACKSEG_END                               // Define to one of '_getb67', 'GETB67', 'getb67' for Cray-2 and Cray-YMP systems. This function is required for 'alloca.c' support on those systems.
+//#undef C_ALLOCA                                        // 如果使用 'alloca.c' 則定義為 1。.
+#define C_GETLOADAVG 1                                   // 如果使用 'getloadavg.c' 則定義為 1。.
+//#undef DGUX                                            // 用 <sys/dg_sys_info.h> 定義 DGUX 的1。
+#define FILE_TIMESTAMP_HI_RES 0                          // 如果非零, 則使用高解析度檔時間戳記。
+//#undef GETLOADAVG_PRIVILEGED                           // 如果 "getloadavg" 函數需要運行 setuid 或 setgid, 則定義為1。
+#define HAVE_ALLOCA 1                                    // 如果有 "alloca", 則定義為 1, 作為函數或巨集。
+//#undef HAVE_ALLOCA_H                                   // 如果您有 <alloca.h> 並且應該使用它 (而不是 Ultrix), 則定義為1。
+#define HAVE_ATEXIT 1                                    // 如果有 'atexit' 函數。
+//#undef HAVE_CASE_INSENSITIVE_FS                        // 使用不區分大小寫的檔案名稱
+//#undef HAVE_CLOCK_GETTIME                              // 如果有 clock_gettime 函數。
+//#undef HAVE_GUILE                                      // 嵌入 GNU Guile 支援。 Windows 編譯器在編譯命令列上設置它。
+#define HAVE_DECL_BSD_SIGNAL 0                           // 如果要取消宣告 'bsd_signal' 則定義為 0。
+#define HAVE_DECL_SYS_SIGLIST 0                          // 如果要取消宣告 'sys_siglist' 則定義為 0。
+#define HAVE_DECL__SYS_SIGLIST 0                         // 如果要取消宣告 '_sys_siglist' 則定義為 0。
+#define HAVE_DECL___SYS_SIGLIST 0                        // 如果要取消宣告 '__sys_siglist' 則定義為 0。
+#define HAVE_DIRENT_H 1                                  // 如果有 <dirent.h> 頭文件和定義 'DIR'.
+#define HAVE_DOS_PATHS 1                                 // 使用平臺特定的編碼
+#define HAVE_DUP2 1                                      // 如果有 'dup2' 函數。
+#define HAVE_FCNTL_H 1                                   // 如果有 <fcntl.h> 頭文件。
+#define HAVE_FILENO 1                                    // 如果有 'fileno' 函數。
+#define HAVE_GETCWD 1                                    // 如果有 'getcwd' 函數。
+//#undef HAVE_GETGROUPS                                  // 如果有 'getgroups' 函數。
+//#undef HAVE_GETHOSTBYNAME                              // 如果有 'gethostbyname' 函數。
+//#undef HAVE_GETHOSTNAME                                // 如果有 'gethostname' 函數。
+//#undef HAVE_GETLOADAVG                                 // 如果有 'getloadavg' 函數。
+//#undef HAVE_GETRLIMIT                                  // 如果有 'getrlimit' 函數。
+//#undef HAVE_GETTEXT                                    // 定義 GNU gettext()   函數是否已存在或預先安裝。
+//#undef HAVE_DCGETTEXT                                  // 定義 GNU dcgettext() 函數是否已存在或預先安裝。
+//#undef HAVE_ICONV                                      // 如果有 iconv() 函數。
+//#undef HAVE_LIBDGC                                     // 如果有 'dgc' library (-ldgc).
+//#undef HAVE_LIBKSTAT                                   // 如果有 'kstat' library (-lkstat).
+#define HAVE_LIMITS_H 1                                  // 如果有 <limits.h> 頭文件。
+//#undef HAVE_LSTAT                                      // 如果有 'lstat' 函數。
+//#undef HAVE_MACH_MACH_H                                // 如果有 <mach/mach.h> 頭文件。
+#define HAVE_MEMORY_H 1                                  // 如果有 <memory.h> 頭文件。
+//#undef HAVE_MKSTEMP                                    // 如果有 'mkstemp' 函數。
+#define HAVE_MKTEMP 1                                    // 如果有 'mktemp' 函數。
+//#undef HAVE_NDIR_H                                     // 如果有 <ndir.h> 頭文件和定義 'DIR'
+//#undef HAVE_NLIST_H                                    // 如果有 <nlist.h> 頭文件
+//#undef HAVE_PIPE                                       // 如果有 'pipe' 函數。
+//#undef HAVE_PSTAT_GETDYNAMIC                           // 如果有 'pstat_getdynamic' 函數。
+//#undef HAVE_READLINK                                   // 如果有 'readlink' 函數。
+//#undef HAVE_REALPATH                                   // 如果有 'realpath' 函數。
+//#undef HAVE_SA_RESTART                                 // <signal.h> 中如果有定義 SA_RESTART 常數，則定義為 1
+//#undef HAVE_SETEGID                                    // 如果有 'setegid' 函數。
+//#undef HAVE_SETEUID                                    // 如果有 'seteuid' 函數。
+//#undef HAVE_SETLINEBUF                                 // 如果有 'setlinebuf' 函數。
+//#undef HAVE_SETREGID                                   // 如果有 'setregid' 函數。
+//#undef HAVE_SETREUID                                   // 如果有 'setreuid' 函數。
+//#undef HAVE_SETRLIMIT                                  // 如果有 'setrlimit' 函數。
+#define HAVE_SETVBUF 1                                   // 如果有 'setvbuf' 函數。
+//#undef HAVE_SIGACTION                                  // 如果有 'sigaction' 函數。
+//#undef HAVE_SIGSETMASK                                 // 如果有 'sigsetmask' 函數。
+//#undef HAVE_SOCKET                                     // 如果有 'socket' 函數。
+#define HAVE_STDLIB_H 1                                  // 如果有 <stdlib.h> 頭文件，則定義為 1。
+#define HAVE_STRING_H 1                                  // 如果有 <string.h> 頭文件，則定義為 1。
+#define HAVE_STRCMPI  1                                  // 如果有 "strcmpi" 函數，則定義為 1。
+#define HAVE_STRCOLL  1                                  // 如果有 "strcoll" 函數和它被正確定義。
+#define HAVE_STRDUP   1                                  // 如果有 "strdup" 函數，則定義為 1。
+#define HAVE_STRERROR 1                                  // 如果有 "strerror" 函數，則定義為 1。
+#define HAVE_STRICMP  1                                  // 如果有 "stricmp" 函數，則定義為 1。
+//#undef HAVE_STRNCMPI                                   // 如果有 "strncmpi" 函數，則定義為 1。
+//#undef HAVE_STRNDUP                                    // 如果有 "strndup" 函數，則定義為 1。
+//#undef HAVE_STRSIGNAL                                  // 如果有 "strsignal" 函數，則定義為 1。
+#define HAVE_ISATTY 1                                    // 如果有 `isatty' 函數。
+#define HAVE_TTYNAME 1                                   // 如果有 `ttyname' 函數。
 char *ttyname(int);
-// #undef HAVE_STRUCT_NLIST_N_UN_N_NAME                  // Define to 1 if 'n_un.n_name' is a member of 'struct nlist'.
-// #undef HAVE_SYS_DIR_H                                 // Define to 1 if you have the <sys/dir.h> header file, and it defines 'DIR'.
-// #undef HAVE_SYS_NDIR_H                                // Define to 1 if you have the <sys/ndir.h> header file, and it defines 'DIR'.
-// #undef HAVE_SYS_RESOURCE_H                            // Define to 1 if you have the <sys/resource.h> header file.
-#define HAVE_SYS_STAT_H 1                                // Define to 1 if you have the <sys/stat.h> header file.
-#define HAVE_SYS_TIMEB_H 1                               // Define to 1 if you have the <sys/timeb.h> header file.
-#define HAVE_SYS_TYPES_H 1                               // Define to 1 if you have the <sys/types.h> header file.
-// #undef HAVE_SYS_WAIT_H                                // Define to 1 if you have the <sys/wait.h> header file.
-// #undef HAVE_UNION_WAIT                                // Define to 1 if you have the \'union wait' type in <sys/wait.h>.
-// #undef HAVE_WAIT3                                     // Define to 1 if you have the 'wait3' function.
-// #undef HAVE_WAITPID                                   // Define to 1 if you have the 'waitpid' function.
-#define MAKE_HOST "Windows32"                            // Build host information.
-#define MAKE_JOBSERVER 1                                 // Define to 1 to enable job server support in GNU make.
-#define MAKE_LOAD 1                                      // Define to 1 to enable 'load' support in GNU make.
-// #undef MAKE_SYMLINKS                                  // Define to 1 to enable symbolic link timestamp checking.
-// #undef NLIST_NAME_UNION                               // Define to 1 if your 'struct nlist' has an 'n_un' member. Obsolete, depend on 'HAVE_STRUCT_NLIST_N_UN_N_NAME
-// #undef NLIST_STRUCT                                   // Define to 1 if struct nlist.n_name is a pointer rather than an array.
-// #undef NO_MINUS_C_MINUS_O                             // Define to 1 if your C compiler doesn't accept -c and -o together.
-#define PACKAGE "%PACKAGE%"                              // Name of this package (needed by automake)
-#define PACKAGE_BUGREPORT "bug-make@gnu.org"             // Define to the address where bug reports for this package should be sent.
-#define PACKAGE_NAME "GNU make"                          // Define to the full name of this package.
-#define PACKAGE_URL "http://www.gnu.org/software/make/"  // Define to the home page for this package.
-#define PACKAGE_VERSION "%VERSION%"                      // Define to the version of this package.
-#define PATH_SEPARATOR_CHAR ';'                          // Define to the character that separates directories in PATH.
-#define RETSIGTYPE void                                  // Define as the return type of signal handlers ('int' or 'void').
-#define SCCS_GET "echo no sccs get"                      // Define to the name of the SCCS 'get' command.
-// #undef SCCS_GET_MINUS_G                               // Define this if the SCCS 'get' command understands the '-G<file>' option.
-
-/* Define to 1 if the 'setvbuf' function takes the buffering type as its
-   second argument and the buffer pointer as the third, as on System V before
-   release 3. */
-/* #undef SETVBUF_REVERSED */
-
-/* If using the C implementation of alloca, define if you know the
-   direction of stack growth for your system; otherwise it will be
-   automatically deduced at run time.
-        STACK_DIRECTION > 0 => grows toward higher addresses
-        STACK_DIRECTION < 0 => grows toward lower addresses
-        STACK_DIRECTION = 0 => direction of growth unknown */
-/* #undef STACK_DIRECTION */
-
-/* Define to 1 if the 'S_IS*' macros in <sys/stat.h> do not work properly. */
-/* #undef STAT_MACROS_BROKEN */
-
-/* Define to 1 if you have the ANSI C header files. */
-#define STDC_HEADERS 1
-
-/* Define if struct stat contains a nanoseconds field */
-/* #undef ST_MTIM_NSEC */
-
-/* Define to 1 on System V Release 4. */
-/* #undef SVR4 */
-
-/* Define to 1 for Encore UMAX. */
-/* #undef UMAX */
-
-/* Define to 1 for Encore UMAX 4.3 that has <inq_status/cpustats.h> instead of
-   <sys/cpustats.h>. */
-/* #undef UMAX4_3 */
-
-/* Version number of package */
-#define VERSION "%VERSION%"
-
-/* Define if using the dmalloc debugging malloc package */
-/* #undef WITH_DMALLOC */
-
-/* Define to 1 if on AIX 3.
-   System headers sometimes define this.
-   We just want to avoid a redefinition error message.  */
+//#undef HAVE_STRUCT_NLIST_N_UN_N_NAME                   // 如果 'n_un.n_name' 是 'struct nlist' 的成員，則定義為1。
+//#undef HAVE_SYS_DIR_H                                  // 如果有 <sys/dir.h> 頭文件和定義 'DIR'.
+//#undef HAVE_SYS_NDIR_H                                 // 如果有 <sys/ndir.h> 頭文件和定義 'DIR'.
+//#undef HAVE_SYS_RESOURCE_H                             // 如果有 <sys/resource.h> 頭文件。
+#define HAVE_SYS_STAT_H 1                                // 如果有 <sys/stat.h> 頭文件。
+#define HAVE_SYS_TIMEB_H 1                               // 如果有 <sys/timeb.h> 頭文件。
+#define HAVE_SYS_TYPES_H 1                               // 如果有 <sys/types.h> 頭文件。
+//#undef HAVE_SYS_WAIT_H                                 // 如果有 <sys/wait.h> 頭文件。
+//#undef HAVE_UNION_WAIT                                 // 如果有 'union wait' type in <sys/wait.h>.
+//#undef HAVE_WAIT3                                      // 如果有 'wait3' 函數。
+//#undef HAVE_WAITPID                                    // 如果有 'waitpid' 函數。
+#define MAKE_HOST "Windows32"                            // 建立主機資訊
+#define MAKE_JOBSERVER 1                                 // GNU make 中啟用 job 服務器支援，則定義為1。
+#define MAKE_LOAD 1                                      // GNU make 中啟用 "load" 支援，則定義為1。
+//#undef MAKE_SYMLINKS                                   // 啟用符號連結時間戳記檢查，則定義為1。
+//#undef NLIST_NAME_UNION                                // 如果 "結構 nlist" 具有 "n_un" 成員, 則定義為1。 過時, 取決於 HAVE_STRUCT_NLIST_N_UN_N_NAME。
+//#undef NLIST_STRUCT                                    // 如果結構 nlist.n_name 是一個指標而不是陣列，則定義為 1。
+//#undef NO_MINUS_C_MINUS_O                              // 如果 C 編譯器不接受 -c 和 -o, 則定義為 1。
+#define PACKAGE "%PACKAGE%"                              // 此套裝軟體的名稱 (需要 automake)
+#define PACKAGE_BUGREPORT "bug-make@gnu.org"             // 定義應發送此套裝軟體的 bug 報告的位址。
+#define PACKAGE_NAME "GNU make"                          // 定義此套裝軟體的全名。
+#define PACKAGE_URL "http://www.gnu.org/software/make/"  // 定義此套裝軟體的主頁。
+#define PACKAGE_VERSION "%VERSION%"                      // 定義此套裝軟體的版本。
+#define PATH_SEPARATOR_CHAR ';'                          // 定義在路徑中分隔目錄的字元。
+#define RETSIGTYPE void                                  // 定義為信號處理常式的返回類型 ("int" 或 "void")。
+#define SCCS_GET "echo no sccs get"                      // 定義為 SCCS 'get' 命令的名稱。 Define to the name of the SCCS 'get' command.
+//#undef SCCS_GET_MINUS_G                                // 如果 SCCS 'get' 命令有 '-G<file>' 選項，則定義此選項。
+//#undef SETVBUF_REVERSED                                // 如果 "setvbuf" 函數以緩衝類型作為其第二個參數和緩衝區指標作為第三個變數, 則定義為 1, 如第3版之前的 System V。
+//#undef STACK_DIRECTION                                 // 如果使用 alloca 的 C 實現，定義是否知道系統堆疊增長的方向; 否則將在運行時自動推斷。
+//STACK_DIRECTION > 0 => 向更高的位址增長 grows toward higher addresses
+//STACK_DIRECTION < 0 => 向較低的位址增長 grows toward lower addresses
+//STACK_DIRECTION = 0 => 未知的增長方向   direction of growth unknown
+//#undef STAT_MACROS_BROKEN                              // 如果 <sys/stat.h> 中的 "S_IS *" 巨集不能正常工作, 則定義為 1。
+#define STDC_HEADERS 1                                   // 如果有 ANSI C 頭文件s.
+//#undef ST_MTIM_NSEC                                    // 定義結構統計是否包含納秒欄位
+//#undef SVR4                                            // 在 System V Release 4 上定義為1。
+//#undef UMAX                                            // 如果為 Encore UMAX 定義為1。
+//#undef UMAX4_3                                         // 對於具有 <inq_status/cpustats.h> 而不是 <sys/cpustats.h> 的 Encore UMAX 4.3 定義為 1。 Define to 1 for Encore UMAX 4.3 that has <inq_status/cpustats.h> instead of <sys/cpustats.h>.
+#define VERSION "%VERSION%"                              // 套裝軟體的版本號
+//#undef WITH_DMALLOC                                    // 定義是否使用 dmalloc 調試 malloc 套裝軟體
 #ifndef _ALL_SOURCE
-  /* # undef _ALL_SOURCE */
+  //# undef _ALL_SOURCE                                  // 如果在 AIX 3 上定義為 1。我們只想避免重新定義錯誤消息。 Define to 1 if on AIX 3. System headers sometimes define this. We just want to avoid a redefinition error message.
 #endif
-
-/* Number of bits in a file offset, on hosts where this is settable. */
-/* #undef _FILE_OFFSET_BITS */
-
-/* Define for large files, on AIX-style hosts. */
-/* #undef _LARGE_FILES */
-
-/* Define to 1 if on MINIX. */
-/* #undef _MINIX */
-
-/* Define to 2 if the system does not provide POSIX.1 features except with
-   this defined. */
-/* #undef _POSIX_1_SOURCE */
-
-/* Define to 1 if you need to in order for 'stat' and other things to work. */
-/* #undef _POSIX_SOURCE */
-
-/* Define to empty if 'const' does not conform to ANSI C. */
-/* #undef const */
-
+//#undef _FILE_OFFSET_BITS                               // 在可設置的主機上的檔案偏移量中的位數。
+//#undef _LARGE_FILES                                    // 在 AIX-style 的主機上定義大型檔案。
+//#undef _MINIX                                          // 如果在 MINIX 上定義為 1。
+//#undef _POSIX_1_SOURCE                                 // 如果系統不提供除了定義的 POSIX.1 功能，則定義為2。
+//#undef _POSIX_SOURCE                                   // 如果您需要為了 "stat" 和其他事情工作，則定義為 1。
+//#undef const                                           // 如果 "const" 不符合 ANSI C, 則定義為空。 Define to empty if 'const' does not conform to ANSI C.
 #include <sys/types.h>
+#define gid_t int                                        // 如果 <sys/types.h> 沒有定義, 則定義為 "int"。
 
-/* Define to 'int' if <sys/types.h> doesn't define. */
-#define gid_t int
-
-/* Define to 'int' if <sys/types.h> does not define. */
-/* GCC 4.x reportedly defines pid_t.  */
-#ifndef _PID_T_
+#ifndef _PID_T_                                          // 如果 <sys/types.h> 未定義, 則定義為 "int"。據說 GCC 4.x 定義了 pid_t。
   #ifdef _WIN64
     #define pid_t __int64
   #else
@@ -316,45 +178,22 @@ char *ttyname(int);
   #endif
 #endif
 
-/* Define to 'int' if <sys/types.h> doesn't define. */
-#define uid_t int
-
-/* Define uintmax_t if not defined in <stdint.h> or <inttypes.h>. */
+#define uid_t int // 如果 <sys/types.h> 沒有定義, 則定義為 "int"。
 #if !HAVE_STDINT_H && !HAVE_INTTYPES_H
-  #define uintmax_t unsigned long
+  #define uintmax_t unsigned long                        // 如果未在 <stdint.h> 或 <inttypes.h> 中定義 uintmax_t, 則定義。
 #endif
-
-/* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
-/* #undef HAVE_SYS_WAIT_H */
-
-#define HAVE_SETLOCALE 1              // 如果有 "setlocale" 函數, 則定義為  1。 Define to 1 if you have the 'setlocale' function.
-#define HAVE_LOCALE_H 1               // 如果有 <locale.h> 頭文件, 則定義為 1。 Define to 1 if you have the <locale.h> header file.
-#define LOCALEDIR "..//share/locale"  // 定義地區設定的安裝目錄。 Define to the installation directory for locales.
-
-// 請參閱讀我檔案。W32 有關以下設置的資訊  Refer to README.W32 for info on the following settings
-// 如果您 shell 沒有正確地格式化 'sh -c quoted-command-line'，則需要這個設置。 請參閱下面的具體 shell 支援。
-// If you have a shell that does not grok 'sh -c quoted-command-line' correctly, you need this setting. Please see below for specific shell support.
-/*#define BATCH_MODE_ONLY_SHELL 1 */
-
-/*
-   Define if you have the Cygnus "Cygwin" GNU Windows32 tool set.
-   Do NOT define BATCH_MODE_ONLY_SHELL if you define HAVE_CYGWIN_SHELL
-*/
-/*#define HAVE_CYGWIN_SHELL 1 */
-
-/*
-   Define if you have the MKS tool set or shell. Do NOT define
-   BATCH_MODE_ONLY_SHELL if you define HAVE_MKS_SHELL
-*/
-/*#define HAVE_MKS_SHELL 1 */
-
-/*
-   Enforce the mutual exclusivity restriction.
-*/
+//#undef HAVE_SYS_WAIT_H                                 // 定義是否有與 POSIX.1 相容的 <sys/wait.h>。
+//#undef ENABLE_NLS                                      // 如果請求將程式訊息轉換為本地化語系, 則定義為1。
+#define HAVE_SETLOCALE 1                                 // 如果有 "setlocale" 函數, 則定義為  1。
+#define HAVE_LOCALE_H 1                                  // 如果有 <locale.h> 頭文件, 則定義為 1。
+#define LOCALEDIR "..//share/locale"                     // 定義地區設定的安裝目錄。
+//#define BATCH_MODE_ONLY_SHELL 1                        // 請參閱讀我檔案。W32 有關以下設置的資訊，如果您 shell 沒有正確地格式化 'sh -c quoted-command-line'，則需要這個設置。 請參閱下面的具體 shell 支援。
+//#define HAVE_CYGWIN_SHELL 1                            // 定義如果您有 Cygnus"cygwin" GNU Windows32 工具集。如果您定義 HAVE_CYGWIN_SHELL，請勿定義 BATCH_MODE_ONLY_SHELL
+//#define HAVE_MKS_SHELL 1                               // 定義是否有 MKS 工具集或 shell。                   如果您定義 HAVE_MKS_SHELL，請勿定義 BATCH_MODE_ONLY_SHELL
+// 執行工具集相互排斥限制。
 #ifdef HAVE_MKS_SHELL
   #undef BATCH_MODE_ONLY_SHELL
 #endif
-
 #ifdef HAVE_CYGWIN_SHELL
   #undef BATCH_MODE_ONLY_SHELL
 #endif

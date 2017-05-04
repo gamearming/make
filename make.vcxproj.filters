@@ -207,7 +207,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="config.h.W32.template.h">
+    <None Include="config.h.W32.template">
       <Filter>template</Filter>
     </None>
   </ItemGroup>
