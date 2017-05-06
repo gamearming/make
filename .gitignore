@@ -33,6 +33,25 @@ make
 *.lib
 *.pdb
 *.sbr
+#忽略由 Visual Studio 產生的檔案
+*.user
+*.aps
+*.pch
+*.vspscc
+*_i.c
+*_p.c
+*.ncb
+*.sdf
+*.suo
+*.bak
+*.cache
+*.ilk
+*.log
+*.opensdf
+[Dd]ebug*/
+[Rr]elease*/
+[Ii]ntermediate*/
+[Mm]svc/library*/
 
 # Windows build artifacts
 WinDebug/
@@ -60,9 +79,3 @@ configh.dos
 make-[0-9]*/
 make-[0-9]*.tar.*
 checkcfg.*.log
-
-
-[Dd]ebug*/
-[Rr]elease*/
-[Ii]ntermediate*/
-
