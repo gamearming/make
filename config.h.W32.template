@@ -32,7 +32,6 @@
   #pragma warning(disable:4244)                        // strcache.c(77): warning C4244: '+=' : 將 'unsigned int' 轉換為 'sc_buflen_t'，由於型別不同，可能導致資料遺失
   #pragma warning(disable:4115)
   #pragma warning(disable:4214)
-
 #endif
 
 #ifdef __MINGW32__
@@ -142,13 +141,13 @@ char *ttyname(int);
 //#undef NLIST_STRUCT                                    // 如果結構 "nlist.n_name" 是一個指標而不是陣列，則定義為 1。
 //#undef NO_MINUS_C_MINUS_O                              // 如果 C 編譯器不接受 -c 和 -o，則定義為 1。
 #define PACKAGE "%PACKAGE%"                              // 此套裝軟體的名稱 (需要 automake)
-#define PACKAGE_BUGREPORT "bug-make@gnu.org"             // 定義應發送此套裝軟體的 bug 報告的位址。
+#define PACKAGE_BUGREPORT "bug-make@gnu.org"             // 定義此套裝軟體的 bug 回報信箱。
 #define PACKAGE_NAME "GNU make"                          // 定義此套裝軟體的全名。
 #define PACKAGE_URL "http://www.gnu.org/software/make/"  // 定義此套裝軟體的主頁。
 #define PACKAGE_VERSION "%VERSION%"                      // 定義此套裝軟體的版本。
 #define PATH_SEPARATOR_CHAR ';'                          // 定義在路徑中分隔目錄的字元。
-#define RETSIGTYPE void                                  // 定義為信號處理常式的返回類型 ("int" 或 "void")。
-#define SCCS_GET "echo no sccs get"                      // 定義為 SCCS 'get' 命令的名稱。
+#define RETSIGTYPE void                                  // 定義信號處理常式的返回類型 ("int" 或 "void")。
+#define SCCS_GET "echo no sccs get"                      // 定義 SCCS 'get' 命令的名稱。
 //#undef SCCS_GET_MINUS_G                                // 如果 SCCS 'get' 命令有 '-G<file>' 選項，則定義此選項。
 //#undef SETVBUF_REVERSED                                // 如果 "setvbuf" 函數以緩衝類型作為其第二個參數和緩衝區指標作為第三個變數，則定義為 1，如第3版之前的 System V。
 //#undef STACK_DIRECTION                                 // 如果使用 alloca 的 C 實現，定義是否知道系統堆疊增長的方向; 否則將在執行時自動推斷。
