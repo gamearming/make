@@ -97,6 +97,17 @@ get_vms_env_flag(const char *name, int default_value) {
   double atof();
 #endif
 
+#ifdef VMS
+  #define DEFAULT_TMPDIR     "/sys$scratch/"
+#else
+  #ifdef P_tmpdir
+    #define DEFAULT_TMPDIR    P_tmpdir
+  #else
+    #define DEFAULT_TMPDIR    "/tmp"
+  #endif
+#endif
+#define DEFAULT_TMPFILE     "GmXXXXXX"
+
 static void clean_jobserver(int status);
 static void print_data_base(void);
 static void print_version(void);
@@ -410,70 +421,46 @@ static const char *const usage[] = {
    So be sure all simple flags (single char, no argument) come first.  */
 
 static const struct command_switch switches[] = {
+  { '?', flag, &print_usage_flag, 0, 0, 0, 0, 0, "help" },
   { 'b', ignore, 0, 0, 0, 0, 0, 0, 0 },
   { 'B', flag, &always_make_set, 1, 1, 0, 0, 0, "always-make" },
   { 'd', flag, &debug_flag, 1, 1, 0, 0, 0, 0 },
   #ifdef WINDOWS32
   { 'D', flag, &suspend_flag, 1, 1, 0, 0, 0, "suspend-for-debug" },
   #endif
-  { 'e', flag, &env_overrides, 1, 1, 0, 0, 0, "environment-overrides", },
+  { 'e', flag, &env_overrides, 1, 1, 0, 0, 0, "environment-overrides" },
   { 'E', strlist, &eval_strings, 1, 0, 0, 0, 0, "eval" },
   { 'h', flag, &print_usage_flag, 0, 0, 0, 0, 0, "help" },
+  { 'H', flag, &print_usage_flag, 0, 0, 0, 0, 0, "help" },
   { 'i', flag, &ignore_errors_flag, 1, 1, 0, 0, 0, "ignore-errors" },
-  {
-    'k', flag, &keep_going_flag, 1, 1, 0, 0, &default_keep_going_flag,
-    "keep-going"
-  },
+  { 'k', flag, &keep_going_flag, 1, 1, 0, 0, &default_keep_going_flag, "keep-going" },
   { 'L', flag, &check_symlink_flag, 1, 1, 0, 0, 0, "check-symlink-times" },
   { 'm', ignore, 0, 0, 0, 0, 0, 0, 0 },
   { 'n', flag, &just_print_flag, 1, 1, 1, 0, 0, "just-print" },
   { 'p', flag, &print_data_base_flag, 1, 1, 0, 0, 0, "print-data-base" },
   { 'q', flag, &question_flag, 1, 1, 1, 0, 0, "question" },
   { 'r', flag, &no_builtin_rules_flag, 1, 1, 0, 0, 0, "no-builtin-rules" },
-  {
-    'R', flag, &no_builtin_variables_flag, 1, 1, 0, 0, 0,
-    "no-builtin-variables"
-  },
+  { 'R', flag, &no_builtin_variables_flag, 1, 1, 0, 0, 0, "no-builtin-variables" },
   { 's', flag, &silent_flag, 1, 1, 0, 0, &default_silent_flag, "silent" },
-  {
-    'S', flag_off, &keep_going_flag, 1, 1, 0, 0, &default_keep_going_flag,
-    "no-keep-going"
-  },
+  { 'S', flag_off, &keep_going_flag, 1, 1, 0, 0, &default_keep_going_flag, "no-keep-going" },
   { 't', flag, &touch_flag, 1, 1, 1, 0, 0, "touch" },
   { 'v', flag, &print_version_flag, 1, 1, 0, 0, 0, "version" },
   { 'w', flag, &print_directory_flag, 1, 1, 0, 0, 0, "print-directory" },
-
-  /* These options take arguments.  */
+  // These options take arguments.
   { 'C', filename, &directories, 0, 0, 0, 0, 0, "directory" },
   { 'f', filename, &makefiles, 0, 0, 0, 0, 0, "file" },
-  {
-    'I', filename, &include_directories, 1, 1, 0, 0, 0,
-    "include-dir"
-  },
-  {
-    'j', positive_int, &arg_job_slots, 1, 1, 0, &inf_jobs, &default_job_slots,
-    "jobs"
-  },
-  {
-    'l', floating, &max_load_average, 1, 1, 0, &default_load_average,
-    &default_load_average, "load-average"
-  },
+  { 'I', filename, &include_directories, 1, 1, 0, 0, 0, "include-dir" },
+  { 'j', positive_int, &arg_job_slots, 1, 1, 0, &inf_jobs, &default_job_slots, "jobs" },
+  { 'l', floating, &max_load_average, 1, 1, 0, &default_load_average, &default_load_average, "load-average" },
   { 'o', filename, &old_files, 0, 0, 0, 0, 0, "old-file" },
   { 'O', string, &output_sync_option, 1, 1, 0, "target", 0, "output-sync" },
   { 'W', filename, &new_files, 0, 0, 0, 0, 0, "what-if" },
-
-  /* These are long-style options.  */
+  // These are long-style options.
   { CHAR_MAX + 1, strlist, &db_flags, 1, 1, 0, "basic", 0, "debug" },
   { CHAR_MAX + 2, string, &jobserver_auth, 1, 1, 0, 0, 0, "jobserver-auth" },
   { CHAR_MAX + 3, flag, &trace_flag, 1, 1, 0, 0, 0, "trace" },
-  {
-    CHAR_MAX + 4, flag, &inhibit_print_directory_flag, 1, 1, 0, 0, 0,
-    "no-print-directory"
-  },
-  {
-    CHAR_MAX + 5, flag, &warn_undefined_variables_flag, 1, 1, 0, 0, 0,
-    "warn-undefined-variables"
-  },
+  { CHAR_MAX + 4, flag, &inhibit_print_directory_flag, 1, 1, 0, 0, 0, "no-print-directory" },
+  { CHAR_MAX + 5, flag, &warn_undefined_variables_flag, 1, 1, 0, 0, 0, "warn-undefined-variables" },
   { CHAR_MAX + 7, string, &sync_mutex, 1, 1, 0, 0, 0, "sync-mutex" },
   { CHAR_MAX + 8, flag_off, &silent_flag, 1, 1, 0, 0, &default_silent_flag, "no-silent" },
   { CHAR_MAX + 9, string, &jobserver_auth, 1, 0, 0, 0, 0, "jobserver-fds" },
@@ -1600,16 +1587,6 @@ job_setup_complete:
         if(stdin_nm)
           O(fatal, NILF,
             _("Makefile from standard input specified twice."));
-        #ifdef VMS
-# define DEFAULT_TMPDIR     "/sys$scratch/"
-        #else
-        # ifdef P_tmpdir
-#  define DEFAULT_TMPDIR    P_tmpdir
-        # else
-#  define DEFAULT_TMPDIR    "/tmp"
-        # endif
-        #endif
-#define DEFAULT_TMPFILE     "GmXXXXXX"
         if(((tmpdir = getenv("TMPDIR")) == NULL || *tmpdir == '\0')
           #if defined (__MSDOS__) || defined (WINDOWS32) || defined (__EMX__)
             /* These are also used commonly on these platforms.  */
@@ -2345,10 +2322,10 @@ handle_non_switch_argument(const char *arg, int env) {
   }
 }
 
-/* Print a nice usage method.  */
+/* Print a nice usage method.
 
-static void
-print_usage(int bad) {
+  static void
+  print_usage(int bad) {
   const char *const *cpp;
   FILE *usageto;
   if(print_version_flag)
@@ -2363,6 +2340,20 @@ print_usage(int bad) {
     fprintf(usageto, _("\nThis program built for %s (%s)\n"),
             make_host, remote_description);
   fprintf(usageto, _("Report bugs to <bug-make@gnu.org>\n"));
+  }
+*/
+static void
+print_usage(int bad) {
+  const char *const *cpp;
+  if(print_version_flag) print_version();
+  printf(_("Usage: %s [options] [target] ...\n"), program);
+  for(cpp = usage; *cpp; ++cpp) printf(_(*cpp));
+  if(!remote_description || *remote_description == '\0') {
+    printf(_("\nThis program built for %s\n"), make_host);
+  } else {
+    printf(_("\nThis program built for %s (%s)\n"), make_host, remote_description);
+  }
+  printf(_("Report bugs to <bug-make@gnu.org>\n"));
 }
 
 /* Decode switches from ARGC and ARGV.
