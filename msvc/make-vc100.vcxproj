@@ -248,6 +248,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="../config.h.W32.template" />
+    <None Include="prepare_msvc.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

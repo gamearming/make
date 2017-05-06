@@ -210,6 +210,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="../config.h.W32.template" />
+    <None Include="../config.h.W32.template">
+      <Filter>template</Filter>
+    </None>
+    <None Include="prepare_msvc.bat">
+      <Filter>template</Filter>
+    </None>
   </ItemGroup>
 </Project>
