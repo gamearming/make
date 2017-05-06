@@ -7,8 +7,11 @@ SET "configure_ac=%rootDir%\configure.ac"
 SET "configure_tpl=%rootDir%\config.h.W32.template"
 SET "configure_sed=%OUTDIR%\config.h.W32.sed"
 cd %~dp0
-if not exist library mklink /j library "../../Library"
+call :mklink_bin "make-debug.exe"   "bin\Debug\make.exe"
+call :mklink_bin "make-Release.exe" "bin\Release\make.exe"
 
+
+if not exist library mklink /j library "../../Library"
 if not exist "%configure_ac%"  call :Error 1
 if not exist "%configure_tpl%" call :Error 2
 if not exist "%OUTDIR%" mkdir "%OUTDIR%"
@@ -23,6 +26,12 @@ echo s,%%PACKAGE%%,make,g >> "%configure_sed%"
 sed -f "%configure_sed%" "%configure_tpl%" > config.h
 goto :EOF
 
+:mklink_bin
+if exist "%~1" goto :EOF
+if exist "%~2" mklink "%~1" "%~2"
+goto :EOF
+
 :Error
 EXIT /B %1
 goto :EOF
+
