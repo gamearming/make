@@ -64,3 +64,5 @@ checkcfg.*.log
 
 [Dd]ebug*/
 [Rr]elease*/
+[Ii]ntermediate*/
+

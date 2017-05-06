@@ -1685,7 +1685,7 @@ abspath(const char *name, char *apath) {
     if(STOP_SET(name[0], MAP_DIRSEP))
       root_len = 1;
     #endif
-    strncpy(apath, name, root_len);
+    strncpy_s(apath, root_len, name, _TRUNCATE); // _TRUNCATE,STRUNCATE
     apath[root_len] = '\0';
     dest = apath + root_len;
     /* Get past the root, since we already copied it.  */
@@ -1752,7 +1752,7 @@ func_realpath(char *o, char **argv, const char *funcname UNUSED) {
       struct stat st;
       PATH_VAR(in);
       PATH_VAR(out);
-      strncpy(in, path, len);
+      strncpy_s(in, len, path, _TRUNCATE); // _TRUNCATE,STRUNCATE
       in[len] = '\0';
       #ifdef HAVE_REALPATH
       ENULLLOOP(rp, realpath(in, out));
@@ -1850,7 +1850,7 @@ func_abspath(char *o, char **argv, const char *funcname UNUSED) {
     if(len < GET_PATH_MAX) {
       PATH_VAR(in);
       PATH_VAR(out);
-      strncpy(in, path, len);
+      strncpy_s(in, len, path, _TRUNCATE); // _TRUNCATE,STRUNCATE
       in[len] = '\0';
       if(abspath(in, out)) {
         o = variable_buffer_output(o, out, strlen(out));

@@ -95,7 +95,7 @@ w32ify(const char *filename, int resolve) {
   if(resolve)
     _fullpath(w32_path, filename, sizeof(w32_path));
   else
-    strncpy(w32_path, filename, sizeof(w32_path));
+    strncpy_s(w32_path, sizeof(w32_path), filename,  _TRUNCATE); // _TRUNCATE,STRUNCATE
   for(p = w32_path; p && *p; p++)
     if(*p == '\\')
       *p = '/';
@@ -107,7 +107,7 @@ getcwd_fs(char* buf, int len) {
   char *p = getcwd(buf, len);
   if(p) {
     char *q = w32ify(buf, 0);
-    strncpy(buf, q, len);
+    strncpy_s(buf, len, q, _TRUNCATE); // _TRUNCATE,STRUNCATE
   }
   return p;
 }

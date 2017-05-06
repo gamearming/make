@@ -401,7 +401,7 @@ pattern_search(struct file *file, int archive,
       }
       DBS(DB_IMPLICIT, (_("Trying pattern rule with stem '%.*s'.\n"),
                         (int) stemlen, stem));
-      strncpy(stem_str, stem, stemlen);
+      strncpy_s(stem_str, stemlen, stem, _TRUNCATE); // _TRUNCATE,STRUNCATE
       stem_str[stemlen] = '\0';
       /* If there are no prerequisites, then this rule matches.  */
       if(rule->deps == 0)

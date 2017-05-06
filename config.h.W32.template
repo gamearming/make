@@ -190,10 +190,14 @@ char *ttyname(int);
 //#undef HAVE_SYS_WAIT_H                                 // 定義是否有與 POSIX.1 相容的 <sys/wait.h>。
 
 /////////////////////////////
-//#define ENABLE_NLS        1                              // 如果請求將程式訊息轉換為本地化語系，則定義為 1。 #undef ENABLE_NLS 
 #define HAVE_SETLOCALE    1                              // 如果有 "setlocale" 函數，則定義為  1。
 #define HAVE_LOCALE_H     1                              // 如果有 <locale.h> 頭文件，則定義為 1。
 #define LOCALEDIR         "..//share/locale"             // 定義地區設定的安裝目錄。
+#undef ENABLE_NLS 
+#define ENABLE_NLS        1                              // 如果請求將程式訊息轉換為本地化語系，則定義為 1。 
+#if ENABLE_NLS == 1
+  #pragma comment(lib, "../Library/lib/libintl.lib")
+#endif
 
 //#define BATCH_MODE_ONLY_SHELL 1                        // 請參閱讀我檔案。W32 有關以下設置的資訊，如果您 shell 沒有正確地格式化 'sh -c quoted-command-line'，則需要這個設置。 請參閱下面的具體 shell 支援。
 //#define HAVE_CYGWIN_SHELL 1                            // 定義如果您有 Cygnus"cygwin" GNU Windows32 工具集。如果您定義 HAVE_CYGWIN_SHELL，請勿定義 BATCH_MODE_ONLY_SHELL

@@ -2279,15 +2279,12 @@ handle_non_switch_argument(const char *arg, int env) {
     char * new_arg;
     eq_ptr = strchr(arg, '=');
     if((eq_ptr != NULL) && (eq_ptr[1] == '"')) {
-      int len;
-      int seg1;
-      int seg2;
-      len = strlen(arg);
+      int len = strlen(arg);
+      int seg1 = eq_ptr - arg + 1;
       new_arg = alloca(len);
-      seg1 = eq_ptr - arg + 1;
-      strncpy(new_arg, arg, (seg1));
-      seg2 = len - seg1 - 1;
-      strncpy(&new_arg[seg1], &eq_ptr[2], seg2);
+      strncpy_s(new_arg, seg1, arg, _TRUNCATE); // _TRUNCATE,STRUNCATE
+      int seg2 = len - seg1 - 1;
+      strncpy_s(&new_arg[seg1], seg2, &eq_ptr[2], _TRUNCATE); // _TRUNCATE,STRUNCATE
       new_arg[seg1 + seg2] = 0;
       if(new_arg[seg1 + seg2 - 1] == '"')
         new_arg[seg1 + seg2 - 1] = 0;

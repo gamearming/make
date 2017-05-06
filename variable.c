@@ -189,7 +189,7 @@ define_variable_in_set(const char *name, unsigned int length,
     struct variable * vms_variable;
     char * vname = alloca(length + 1);
     char * vvalue;
-    strncpy(vname, name, length);
+    strncpy_s(vname, length, name, _TRUNCATE); // _TRUNCATE,STRUNCATE
     vvalue = getenv(vname);
     /* Values starting with '$' are probably foreign commands.
        We want to treat them as Shell aliases and not look them up here */
@@ -410,7 +410,7 @@ lookup_variable(const char *name, unsigned int length) {
   {
     char *vname = alloca(length + 1);
     char *value;
-    strncpy(vname, name, length);
+    strncpy_s(vname, length, name, _TRUNCATE); // _TRUNCATE,STRUNCATE
     vname[length] = 0;
     value = getenv(vname);
     if(value != 0) {
