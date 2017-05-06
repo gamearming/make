@@ -202,9 +202,9 @@ pid2str(pid_t pid) {
   #if defined(WINDOWS32) && (__GNUC__ > 3 || _MSC_VER > 1300)
   /* %Id is only needed for 64-builds, which were not supported by
       older versions of Windows compilers.  */
-  sprintf(pidstring, "%Id", pid);
+  sprintf_s(pidstring, sizeof(pidstring), "%Id", pid);
   #else
-  sprintf(pidstring, "%lu", (unsigned long) pid);
+  sprintf_s(pidstring, sizeof(pidstring), "%lu", (unsigned long) pid);
   #endif
   return pidstring;
 }
@@ -295,10 +295,10 @@ create_batch_file(char const *base, int unixy, int *fd) {
   while(path_size > 0 &&
         path_size + sizemax < sizeof temp_path &&
         !(uniq >= 0x10000 && second_loop)) {
-    unsigned size = sprintf(temp_path + path_size,
-                            "%s%s-%x.%s",
-                            temp_path[path_size - 1] == '\\' ? "" : "\\",
-                            base, uniq, ext);
+    unsigned size = sprintf_s(temp_path + path_size, sizeof(temp_path) - path_size,
+                              "%s%s-%x.%s",
+                              temp_path[path_size - 1] == '\\' ? "" : "\\",
+                              base, uniq, ext);
     HANDLE h = CreateFile(temp_path,   /* file name */
                           GENERIC_READ | GENERIC_WRITE, /* desired access */
                           0,                            /* no share mode */
@@ -2519,7 +2519,7 @@ slow:;
         int id = GetCurrentProcessId();
         PATH_VAR(fbuf);
         /* Generate a file name for the temporary batch file.  */
-        sprintf(fbuf, "make%d", id);
+        sprintf_s(fbuf, sizeof(fbuf), "make%d", id);
         *batch_filename = create_batch_file(fbuf, 0, &temp_fd);
         DB(DB_JOBS, (_("Creating temporary batch file %s\n"),
                      *batch_filename));
@@ -2676,10 +2676,9 @@ slow:;
       int id = GetCurrentProcessId();
       PATH_VAR(fbuf);
       /* create a file name */
-      sprintf(fbuf, "make%d", id);
+      sprintf_s(fbuf, sizeof(fbuf), "make%d", id);
       *batch_filename = create_batch_file(fbuf, unixy_shell, &temp_fd);
-      DB(DB_JOBS, (_("Creating temporary batch file %s\n"),
-                   *batch_filename));
+      DB(DB_JOBS, (_("Creating temporary batch file %s\n"), *batch_filename));
       /* Create a FILE object for the batch file, and write to it the
          commands to be executed.  Put the batch file in TEXT mode.  */
       _setmode(temp_fd, _O_TEXT);

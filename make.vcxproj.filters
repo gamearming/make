@@ -205,6 +205,9 @@
     <ClInclude Include="glob\glob.h">
       <Filter>include\glob</Filter>
     </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="config.h.W32.template">

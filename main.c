@@ -14,6 +14,7 @@
   You should have received a copy of the GNU General Public License along with
   this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
+
 #include "makeint.h"
 #include "os.h"
 #include "filedef.h"
@@ -26,27 +27,8 @@
 #include "getopt.h"
 
 #include <assert.h>
-#ifdef _AMIGA
-  #include <dos/dos.h>
-  #include <proto/dos.h>
-#endif
-#ifdef WINDOWS32
-  #include <windows.h>
-  #include <io.h>
-  #ifdef HAVE_STRINGS_H
-    #include <strings.h>  /* for strcasecmp */
-  #endif
-  #include "pathstuff.h"
-  #include "sub_proc.h"
-  #include "w32err.h"
-#endif
-#ifdef __EMX__
-  #include <sys/types.h>
-  #include <sys/wait.h>
-#endif
-#ifdef HAVE_FCNTL_H
-  #include <fcntl.h>
-#endif
+#include "main.h"
+
 
 #ifdef _AMIGA
   int __stack = 20000; /* Make sure we have 20K of stack space */
@@ -82,31 +64,6 @@ get_vms_env_flag(const char *name, int default_value) {
   }
 }
 #endif
-
-#if defined HAVE_WAITPID || defined HAVE_WAIT3
-  #define HAVE_WAIT_NOHANG
-#endif
-
-#ifndef HAVE_UNISTD_H
-  int chdir();
-#endif
-#ifndef STDC_HEADERS
-  #ifndef sun                    /* Sun has an incorrect decl in a header.  */
-    void exit(int) __attribute__((noreturn));
-  #endif
-  double atof();
-#endif
-
-#ifdef VMS
-  #define DEFAULT_TMPDIR     "/sys$scratch/"
-#else
-  #ifdef P_tmpdir
-    #define DEFAULT_TMPDIR    P_tmpdir
-  #else
-    #define DEFAULT_TMPDIR    "/tmp"
-  #endif
-#endif
-#define DEFAULT_TMPFILE     "GmXXXXXX"
 
 static void clean_jobserver(int status);
 static void print_data_base(void);
@@ -787,6 +744,29 @@ prepare_mutex_handle_string(sync_handle_t handle) {
 
 #endif  /* NO_OUTPUT_SYNC */
 
+#ifdef USE_EVENT_LOG
+inline void event_log(CHAR * errmsg) {
+  HANDLE hEventSource;
+  LPTSTR lpszStrings[1];
+  lpszStrings[0] = errmsg;
+  hEventSource = RegisterEventSource(NULL, "GNU Make");
+  if(NULL != hEventSource) {
+    ReportEvent(hEventSource,         // handle of event source
+                EVENTLOG_ERROR_TYPE,  // event type
+                0,                    // event category
+                0,                    // event ID
+                NULL,                 // current user's SID
+                1,                    // strings in lpszStrings
+                0,                    // no bytes of raw data
+                lpszStrings,          // array of error strings
+                NULL);                // no raw data
+    (VOID) DeregisterEventSource(hEventSource);
+  }
+}
+#else
+void event_log(CHAR * errmsg) {}
+#endif
+
 /*
    HANDLE runtime exceptions by avoiding a requestor on the GUI. Capture
    exception and print it to stderr instead.
@@ -796,58 +776,46 @@ prepare_mutex_handle_string(sync_handle_t handle) {
    If compiled for DEBUG, let exception pass through to GUI so that
      debuggers can attach.
 */
+
 LONG WINAPI
 handle_runtime_exceptions(struct _EXCEPTION_POINTERS *exinfo) {
   PEXCEPTION_RECORD exrec = exinfo->ExceptionRecord;
   LPSTR cmdline = GetCommandLine();
   LPSTR prg = strtok(cmdline, " ");
   CHAR errmsg[1024];
-  #ifdef USE_EVENT_LOG
-  HANDLE hEventSource;
-  LPTSTR lpszStrings[1];
-  #endif
-  if(! ISDB(DB_VERBOSE)) {
-    sprintf(errmsg,
-            _("%s: Interrupt/Exception caught (code = 0x%lx, addr = 0x%p)\n"),
-            prg, exrec->ExceptionCode, exrec->ExceptionAddress);
+  /*
+    #ifdef USE_EVENT_LOG
+    HANDLE hEventSource;
+    LPTSTR lpszStrings[1];
+    #endif
+  */
+  if(!ISDB(DB_VERBOSE)) {
+    sprintf_s(errmsg, sizeof(errmsg),
+              _("%s: Interrupt/Exception caught (code = 0x%lx, addr = 0x%p)\n"),
+              prg, exrec->ExceptionCode, exrec->ExceptionAddress);
     fprintf(stderr, errmsg);
     exit(255);
   }
-  sprintf(errmsg,
-          _("\nUnhandled exception filter called from program %s\nExceptionCode = %lx\nExceptionFlags = %lx\nExceptionAddress = 0x%p\n"),
-          prg, exrec->ExceptionCode, exrec->ExceptionFlags,
-          exrec->ExceptionAddress);
-  if(exrec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION
-      && exrec->NumberParameters >= 2)
-    sprintf(&errmsg[strlen(errmsg)],
-            (exrec->ExceptionInformation[0]
-             ? _("Access violation: write operation at address 0x%p\n")
-             : _("Access violation: read operation at address 0x%p\n")),
-            (PVOID)exrec->ExceptionInformation[1]);
-  /* turn this on if we want to put stuff in the event log too */
-  #ifdef USE_EVENT_LOG
-  hEventSource = RegisterEventSource(NULL, "GNU Make");
-  lpszStrings[0] = errmsg;
-  if(hEventSource != NULL) {
-    ReportEvent(hEventSource,          /* handle of event source */
-                EVENTLOG_ERROR_TYPE,  /* event type */
-                0,                    /* event category */
-                0,                    /* event ID */
-                NULL,                 /* current user's SID */
-                1,                    /* strings in lpszStrings */
-                0,                    /* no bytes of raw data */
-                lpszStrings,          /* array of error strings */
-                NULL);                /* no raw data */
-    (VOID) DeregisterEventSource(hEventSource);
-  }
-  #endif
-  /* Write the error to stderr too */
+  sprintf_s(errmsg, sizeof(errmsg),
+            _("\nUnhandled exception filter called from program %s\nExceptionCode = %lx\nExceptionFlags = %lx\nExceptionAddress = 0x%p\n"),
+            prg, exrec->ExceptionCode, exrec->ExceptionFlags,
+            exrec->ExceptionAddress);
+  if(exrec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION && exrec->NumberParameters >= 2)
+    sprintf_s(&errmsg[strlen(errmsg)], sizeof(errmsg) - strlen(errmsg),
+              //sprintf(&errmsg[strlen(errmsg)]
+              (exrec->ExceptionInformation[0]
+               ? _("Access violation: write operation at address 0x%p\n")
+               : _("Access violation: read operation at address 0x%p\n")),
+              (PVOID)exrec->ExceptionInformation[1]);
+  // turn this on if we want to put stuff in the event log too
+  event_log(errmsg); // #ifdef USE_EVENT_LOG
+  // Write the error to stderr too
   fprintf(stderr, errmsg);
   #ifdef DEBUG
   return EXCEPTION_CONTINUE_SEARCH;
   #else
   exit(255);
-  return (255); /* not reached */
+  return (255); // not reached
   #endif
 }
 
@@ -886,7 +854,7 @@ find_and_set_default_shell(const char *token) {
           && !strcasecmp(tokend - 4, "cmd.exe"))) {
     batch_mode_shell = 1;
     unixy_shell = 0;
-    sprintf(sh_path, "%s", search_token);
+    sprintf_s(sh_path, sizeof(sh_path), "%s", search_token);
     default_shell = xstrdup(w32ify(sh_path, 0));
     DB(DB_VERBOSE, (_("find_and_set_shell() setting default_shell = %s\n"),
                     default_shell));
@@ -897,7 +865,7 @@ find_and_set_default_shell(const char *token) {
     sh_found = 1;
   } else if(_access(search_token, 0) == 0) {
     /* search token path was found */
-    sprintf(sh_path, "%s", search_token);
+    sprintf_s(sh_path, sizeof(sh_path), "%s", search_token);
     default_shell = xstrdup(w32ify(sh_path, 0));
     DB(DB_VERBOSE, (_("find_and_set_shell() setting default_shell = %s\n"),
                     default_shell));
@@ -912,7 +880,7 @@ find_and_set_default_shell(const char *token) {
       ep = strchr(p, PATH_SEPARATOR_CHAR);
       while(ep && *ep) {
         *ep = '\0';
-        sprintf(sh_path, "%s/%s", p, search_token);
+        sprintf_s(sh_path, sizeof(sh_path), "%s/%s", p, search_token);
         if(_access(sh_path, 0) == 0) {
           default_shell = xstrdup(w32ify(sh_path, 0));
           sh_found = 1;
@@ -927,7 +895,7 @@ find_and_set_default_shell(const char *token) {
       }
       /* be sure to check last element of Path */
       if(p && *p) {
-        sprintf(sh_path, "%s/%s", p, search_token);
+        sprintf_s(sh_path, sizeof(sh_path), "%s/%s", p, search_token);
         if(_access(sh_path, 0) == 0) {
           default_shell = xstrdup(w32ify(sh_path, 0));
           sh_found = 1;
@@ -2032,14 +2000,14 @@ job_setup_complete:
           for(p = environ; *p != 0; ++p) {
             if(strneq(*p, MAKELEVEL_NAME "=", MAKELEVEL_LENGTH + 1)) {
               *p = alloca(40);
-              sprintf(*p, "%s=%u", MAKELEVEL_NAME, makelevel);
+              sprintf_s(*p, 40, "%s=%u", MAKELEVEL_NAME, makelevel);
               #ifdef VMS
               vms_putenv_symbol(*p);
               #endif
             } else if(strneq(*p, "MAKE_RESTARTS=", CSTRLEN("MAKE_RESTARTS="))) {
               *p = alloca(40);
-              sprintf(*p, "MAKE_RESTARTS=%s%u",
-                      OUTPUT_IS_TRACED() ? "-" : "", restarts);
+              sprintf_s(*p, 40, "MAKE_RESTARTS=%s%u",
+                        OUTPUT_IS_TRACED() ? "-" : "", restarts);
               restarts = 0;
             }
           }
@@ -2047,9 +2015,9 @@ job_setup_complete:
         #else /* AMIGA */
         {
           char buffer[256];
-          sprintf(buffer, "%u", makelevel);
+          sprintf_s(buffer, sizeof(buffer), "%u", makelevel);
           SetVar(MAKELEVEL_NAME, buffer, -1, GVF_GLOBAL_ONLY);
-          sprintf(buffer, "%s%u", OUTPUT_IS_TRACED() ? "-" : "", restarts);
+          sprintf_s(buffer, sizeof(buffer), "%s%u", OUTPUT_IS_TRACED() ? "-" : "", restarts);
           SetVar("MAKE_RESTARTS", buffer, -1, GVF_GLOBAL_ONLY);
           restarts = 0;
         }
@@ -2057,8 +2025,8 @@ job_setup_complete:
         /* If we didn't set the restarts variable yet, add it.  */
         if(restarts) {
           char *b = alloca(40);
-          sprintf(b, "MAKE_RESTARTS=%s%u",
-                  OUTPUT_IS_TRACED() ? "-" : "", restarts);
+          sprintf_s(b, 40, "MAKE_RESTARTS=%s%u",
+                    OUTPUT_IS_TRACED() ? "-" : "", restarts);
           putenv(b);
         }
         fflush(stdout);
@@ -2657,7 +2625,7 @@ define_makeflags(int all, int makefile) {
               ADD_FLAG("", 0);  /* Optional value omitted; see below.  */
             else {
               char *buf = alloca(30);
-              sprintf(buf, "%u", *(unsigned int *) cs->value_ptr);
+              sprintf_s(buf, 30, "%u", *(unsigned int *) cs->value_ptr);
               ADD_FLAG(buf, strlen(buf));
             }
           }
@@ -2674,7 +2642,7 @@ define_makeflags(int all, int makefile) {
               ADD_FLAG("", 0);  /* Optional value omitted; see below.  */
             else {
               char *buf = alloca(100);
-              sprintf(buf, "%g", *(double *) cs->value_ptr);
+              sprintf_s(buf, 100, "%g", *(double *) cs->value_ptr);
               ADD_FLAG(buf, strlen(buf));
             }
           }

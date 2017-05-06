@@ -232,7 +232,7 @@ strsignal(int sig) {
   #endif
   if(sig > 0 && sig < NSIG)
     return (char *) sys_siglist[sig];
-  sprintf(buf, "Signal %d", sig);
+  sprintf_s(buf, sizeof(buf), "Signal %d", sig);
   return buf;
 }
 

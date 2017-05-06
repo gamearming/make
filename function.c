@@ -622,7 +622,7 @@ func_words(char *o, char **argv, const char *funcname UNUSED) {
   char buf[20];
   while(find_next_token(&word_iterator, NULL) != 0)
     ++i;
-  sprintf(buf, "%d", i);
+  sprintf_s(buf, sizeof(buf), "%d", i);
   o = variable_buffer_output(o, buf, strlen(buf));
   return o;
 }
@@ -1192,7 +1192,7 @@ shell_completed(int exit_code, int exit_sig) {
     shell_function_completed = -1;
   else
     shell_function_completed = 1;
-  sprintf(buf, "%d", exit_code);
+  sprintf_s(buf, sizeof(buf), "%d", exit_code);
   define_variable_cname(".SHELLSTATUS", buf, o_override, 0);
 }
 
@@ -1322,7 +1322,7 @@ msdos_openpipe(int* pipedes, int *pidp, char *text) {
     char buf[PATH_MAX + 7];
     /* This makes sure $SHELL value is used by $(shell), even
        though the target environment is not passed to it.  */
-    sprintf(buf, "SHELL=%s", sh->value);
+    sprintf_s(buf, sizeof(buf), "SHELL=%s", sh->value);
     putenv(buf);
   }
   e = errno;
@@ -2096,7 +2096,7 @@ func_call(char *o, char **argv, const char *funcname UNUSED) {
   push_new_variable_scope();
   for(i = 0; *argv; ++i, ++argv) {
     char num[11];
-    sprintf(num, "%d", i);
+    sprintf_s(num, sizeof(num), "%d", i);
     define_variable(num, strlen(num), *argv, o_automatic, 0);
   }
   /* If the number of arguments we have is < max_args, it means we're inside
@@ -2105,7 +2105,7 @@ func_call(char *o, char **argv, const char *funcname UNUSED) {
      invocation.  */
   for(; i < max_args; ++i) {
     char num[11];
-    sprintf(num, "%d", i);
+    sprintf_s(num, sizeof(num), "%d", i);
     define_variable(num, strlen(num), "", o_automatic, 0);
   }
   /* Expand the body in the context of the arguments, adding the result to

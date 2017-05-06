@@ -1171,9 +1171,9 @@ f_mtime(struct file *file, int search) {
               / 1e9));
         char from_now_string[100];
         if(from_now >= 99 && from_now <= ULONG_MAX)
-          sprintf(from_now_string, "%lu", (unsigned long) from_now);
+          sprintf_s(from_now_string, sizeof(from_now_string), "%lu", (unsigned long) from_now);
         else
-          sprintf(from_now_string, "%.2g", from_now);
+          sprintf_s(from_now_string, sizeof(from_now_string), "%.2g", from_now);
         OSS(error, NILF,
             _("Warning: File '%s' has modification time %s s in the future"),
             file->name, from_now_string);

@@ -669,14 +669,14 @@ void
 define_automatic_variables(void) {
   struct variable *v;
   char buf[200];
-  sprintf(buf, "%u", makelevel);
+  sprintf_s(buf, sizeof(buf), "%u", makelevel);
   define_variable_cname(MAKELEVEL_NAME, buf, o_env, 0);
-  sprintf(buf, "%s%s%s",
-          version_string,
-          (remote_description == 0 || remote_description[0] == '\0')
-          ? "" : "-",
-          (remote_description == 0 || remote_description[0] == '\0')
-          ? "" : remote_description);
+  sprintf_s(buf, sizeof(buf), "%s%s%s",
+            version_string,
+            (remote_description == 0 || remote_description[0] == '\0')
+            ? "" : "-",
+            (remote_description == 0 || remote_description[0] == '\0')
+            ? "" : remote_description);
   define_variable_cname("MAKE_VERSION", buf, o_default, 0);
   define_variable_cname("MAKE_HOST", make_host, o_default, 0);
   #ifdef  __MSDOS__
@@ -906,7 +906,7 @@ target_environment(struct file *file) {
       }
     }
   *result = xmalloc(100);
-  sprintf(*result, "%s=%u", MAKELEVEL_NAME, makelevel + 1);
+  sprintf_s(*result, 100, "%s=%u", MAKELEVEL_NAME, makelevel + 1);
   *++result = 0;
   hash_free(&table, 0);
   return result_0;

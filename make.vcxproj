@@ -150,6 +150,7 @@
     <ClInclude Include="gmk-default.h" />
     <ClInclude Include="hash.h" />
     <ClInclude Include="job.h" />
+    <ClInclude Include="main.h" />
     <ClInclude Include="output.h" />
     <ClInclude Include="makeint.h" />
     <ClInclude Include="rule.h" />
