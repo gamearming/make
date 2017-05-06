@@ -1,0 +1,30 @@
+*.o
+*.exe
+*.dll.a
+#忽略由 Visual Studio 產生的檔案
+*.obj
+*.lib
+*.pdb
+*.sbr
+*.user
+*.aps
+*.pch
+*.vspscc
+*_i.c
+*_p.c
+*.ncb
+*.sdf
+*.suo
+*.bak
+*.cache
+*.ilk
+*.log
+*.opensdf
+
+[Ii]ntermediate*/
+[Ll]ibrary*/
+
+# Distribution artifacts
+config.h
+make-[0-9]*/
+make-[0-9]*.tar.*
